@@ -1,5 +1,23 @@
 # Deleting primes from the integers: how regular can the remaining integers be?
 
+## Overview
+
+Remove from the positive integers every number divisible by a prime in some set `S`. If `∑_{p∈S} 1/p` converges, the
+integers that remain have a positive density `a_S`, so their count `N_S(x)` up to `x` is about `a_S x`. The paper asks
+how small the error `N_S(x) − a_S x` can be, and shows that deleting a large set of primes forces a large error. The
+size of `S` is measured by its dimension `α`, the point where `∑_{p∈S} p^{−s}` stops converging.
+
+- **Main result (Theorem 6).** For every `S`, the error exponent is at least `(α/2)·min(1/2, 1−α)`, with no
+  assumption about the zeros of the Riemann zeta function.
+- **How close to sharp (Theorems 1 and 2).** Random sets `S` show, under the Riemann hypothesis, that no bound better
+  than `α/2` holds for all `S`. So for `α ≤ 1/2` the bound `α/4` is within a factor of 2 of the best possible.
+  Whether `α/2` is always forced is left open (Question 10).
+- **Side results.** The random sets give new Beurling generalized number systems, and the case of very small error
+  gives an analogue of the answer by Klurman, Mangerel, Pohoata and Teräväinen to a question of Ruzsa.
+
+The counting lemmas, the exponent arithmetic and the deductions are checked in Lean 4. The analytic core has not yet
+been read by a human expert; see below for exactly what is and is not checked.
+
 ## Provenance
 
 The mathematics, the proofs, the Lean code and the text in this repository were produced almost entirely by AI
