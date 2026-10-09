@@ -1,0 +1,20 @@
+name = "DeletedPrimes"
+version = "0.3.0"
+keywords = ["math"]
+defaultTargets = ["DeletedPrimes"]
+
+[leanOptions]
+pp.unicode.fun = true
+autoImplicit = false
+relaxedAutoImplicit = false
+weak.linter.mathlibStandardSet = false
+maxSynthPendingDepth = 3
+
+[[require]]
+name = "mathlib"
+scope = "leanprover-community"
+rev = "v4.35.0-rc3"
+
+[[lean_lib]]
+name = "DeletedPrimes"
+globs = ["DeletedPrimes", "DeletedPrimes.+"]

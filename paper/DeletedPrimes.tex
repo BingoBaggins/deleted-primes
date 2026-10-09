@@ -1,0 +1,916 @@
+\documentclass[11pt]{amsart}
+\usepackage[margin=1.1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[colorlinks=true,linkcolor=blue,citecolor=blue,urlcolor=blue]{hyperref}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{question}[theorem]{Question}
+\newtheorem{lemma}{Lemma}[section]
+\newtheorem{proposition}[lemma]{Proposition}
+\theoremstyle{remark}
+\newtheorem{remark}[lemma]{Remark}
+\numberwithin{equation}{section}
+
+\newcommand{\C}{\mathbb{C}}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\PP}{\mathbb{P}}
+\newcommand{\Prob}{\mathbf{P}}
+\newcommand{\Ex}{\mathbf{E}}
+\newcommand{\cD}{\mathcal{D}}
+\newcommand{\cN}{\mathcal{N}}
+\newcommand{\cL}{\mathcal{L}}
+\newcommand{\cR}{\mathcal{R}}
+\newcommand{\cG}{\mathcal{G}}
+\newcommand{\cE}{\mathcal{E}}
+\newcommand{\eps}{\varepsilon}
+\newcommand{\e}{\mathrm{e}}
+\newcommand{\lean}[1]{\texttt{#1}}
+\DeclareMathOperator{\re}{Re}
+\DeclareMathOperator{\im}{Im}
+\DeclareMathOperator{\Res}{Res}
+\DeclareMathOperator{\Var}{Var}
+\DeclareMathOperator{\lcm}{lcm}
+\DeclareMathOperator{\li}{li}
+
+\title[Deleting primes from the integers]{Deleting primes from the integers:\\ how regular can the remaining integers be?}
+\date{October 2026 (version 3)}
+\subjclass[2020]{Primary 11N80; Secondary 11M26, 11M41, 11N37, 11K65}
+\keywords{Beurling generalized primes, well-behaved number systems, integers free of a set of primes, Riemann hypothesis, random sets of primes}
+
+\begin{document}
+
+\begin{abstract}
+Let $S$ be a set of primes with $\sum_{p\in S}1/p<\infty$, let $N_S(x)$ be the number of positive integers up to $x$ with no prime factor in $S$, and let $a_S$ be their density. We compare the exponent $\theta(S)$ of the error term $N_S(x)-a_Sx$, and its mean-square analogue $\theta_2(S)\le\theta(S)$, with the dimension $\alpha(S)$ of $S$, the abscissa of convergence of $\sum_{p\in S}p^{-s}$. We prove, with no information on the zeros of $\zeta$, that $\theta(S)\ge\theta_2(S)\ge\tfrac{\alpha}{2}\min(\tfrac12,1-\alpha)$, $\alpha=\alpha(S)$, for every $S$; in particular $\alpha(S)\le4\theta_2(S)$ whenever $\alpha(S)\le\tfrac12$. The proof tests $N_S(x)-a_Sx$ against the sawtooth functions of products of deleted primes drawn from several dyadic blocks, and finds the blocks through a rigidity on the real axis: if $\theta_2(S)<\alpha(S)$, then $\sum_{p\in S,\,p\le x}\log p/p^{\alpha}=m\log x+o(\log x)$ with an integer $m\ge1$. If each prime $p$ is put in $S$ independently with probability $p^{\alpha-1}$, then almost surely $\theta(S)\ge\alpha/2$, and, under the Riemann hypothesis, almost surely $\theta(S)=\theta_2(S)=\alpha/2$, for every $0<\alpha<1$; so the constant $4$ cannot be replaced by a constant below $2$. For $\tfrac12<\alpha<1$ the primes outside such a set form, under the Riemann hypothesis, an $[\alpha,\alpha/2]$-system in the sense of Hilberdink whose zeta function has a real zero at $\alpha$, and adjoining the generalized primes $p^{1/\beta}$ gives $[\alpha,\beta]$-systems for every $\alpha/2\le\beta<\tfrac12$; Broucke, Debruyne and R\'ev\'esz had constructed such systems, under the Riemann hypothesis, for $\tfrac12<\alpha<\tfrac23$ and $2\alpha/(\alpha+2)\le\beta<\tfrac12$. By a case split on the Riemann hypothesis, for every $\theta>\tfrac14$ some set of primes has its integers counted with error $O(x^{\theta})$ and a zeta function with a zero to the right of the critical line. Further, $\theta(S)\ge\alpha(S)/2$ when the counting function of $S$ is $c_0\li_\alpha(x)+O(x^{\delta})$ with $\delta<\alpha/2$, and $\theta_2(S)=0$ forces $\alpha(S)=0$, an $O(x^{\eps})$ analogue of the theorem of Klurman, Mangerel, Pohoata and Ter\"av\"ainen on a question of Ruzsa. The exponent arithmetic, the counting lemmas and the deductions are checked in Lean.
+\end{abstract}
+
+\maketitle
+
+\section{Introduction}
+
+\subsection{The question}
+Throughout, $\PP$ is the set of prime numbers, $p$ denotes a prime, and $S\subseteq\PP$ is a set of primes with $\sum_{p\in S}1/p<\infty$. Write
+\[
+\cN_S=\{n\ge 1 : p\mid n\Rightarrow p\notin S\},\qquad N_S(x)=\#\{n\le x: n\in\cN_S\},\qquad a_S=\prod_{p\in S}\Bigl(1-\frac1p\Bigr)>0,
+\]
+so that $N_S(x)\sim a_Sx$. We attach three exponents to $S$:
+\begin{itemize}
+\item the \emph{dimension} $\alpha(S)\in[0,1]$, the abscissa of convergence of $\sum_{p\in S}p^{-s}$ (with $\alpha(S)=0$ when $S$ is finite);
+\item the \emph{integer exponent} $\theta(S)\in[0,1]$, the infimum of the $\theta\in[0,1]$ with $N_S(x)=a_Sx+O(x^{\theta})$;
+\item the \emph{mean-square exponent} $\theta_2(S)\in[0,1]$, the infimum of the $\theta\in[0,1]$ with
+\[
+\frac1X\int_X^{2X}\bigl(N_S(x)-a_Sx\bigr)^2dx\ll X^{2\theta}\qquad(X\ge1).
+\]
+\end{itemize}
+Clearly $\theta_2(S)\le\theta(S)$, and $\theta(S)\le\alpha(S)$ (Section~\ref{sec:legendre}). For $S=\emptyset$ we have $N_S(x)=\lfloor x\rfloor$ and $\theta(S)=\theta_2(S)=0$. The question of this paper is how small $\theta(S)$ can be when $S$ is large: \emph{if a set of primes of dimension $\alpha$ is deleted, how regular can the remaining integers be?}
+
+The question comes from the theory of Beurling generalized primes \cite{Beurling,DZ}. The pair $(\PP\setminus S,\cN_S)$ is a Beurling number system with zeta function
+\begin{equation}\label{eq:zetaS}
+\zeta_S(s)=\sum_{n\in\cN_S}n^{-s}=\prod_{p\notin S}(1-p^{-s})^{-1}=\zeta(s)Z_S(s),\qquad Z_S(s)=\prod_{p\in S}(1-p^{-s}),
+\end{equation}
+for $\re s>1$. Following Hilberdink \cite{H05}, a Beurling number system $(\mathcal P,\mathcal N)$ is an \emph{$[\alpha,\beta]$-system} if there is $a>0$ with $\psi_{\mathcal P}(x)=x+O_\eps(x^{\alpha+\eps})$ and $N_{\mathcal P}(x)=ax+O_\eps(x^{\beta+\eps})$ for every $\eps>0$ and for no $\eps<0$. Under the Riemann hypothesis (RH) the rational primes form a $[\tfrac12,0]$-system. Hilberdink \cite{H05} proved that every $[\alpha,\beta]$-system has $\max(\alpha,\beta)\ge\tfrac12$; Broucke and Hilberdink \cite{BH} made this quantitative. Systems with well-behaved integers and badly behaved primes were constructed by Diamond, Montgomery and Vorhauer \cite{DMV} and by Broucke, Debruyne and Vindas \cite{BDV}. Broucke, Debruyne and R\'ev\'esz \cite{BDR} showed that $[\alpha,\beta]$-systems exist for all $\alpha\in[0,1)$ and $\beta\in[\tfrac12,1)$, and, assuming RH, for $\alpha=\tfrac12$, $0\le\beta<\tfrac12$ and for
+\begin{equation}\label{eq:BDR}
+\tfrac12<\alpha<\tfrac23,\qquad \frac{2\alpha}{\alpha+2}\le\beta<\tfrac12 .
+\end{equation}
+Their systems \eqref{eq:BDR} are obtained from $\PP\cup\PP^{1/\beta}$ by removing a suitably chosen set of rational primes of dimension $\alpha$, and \cite[\S5]{BDR} also treats random deletions under RH. Which pairs $(\alpha,\beta)$ with $\beta<\tfrac12$ are attained is not known; under RH, Corollary~\ref{cor:systems}(3) below adds all pairs with $\tfrac12<\alpha<1$ and $\alpha/2\le\beta<\tfrac12$. If $\theta_2(S)<\alpha(S)$, then $\alpha(S)<1$ (Corollary~\ref{cor:dimzero}) and $\zeta_S$ has a real zero at $\alpha(S)$ (Proposition~\ref{prop:realzero}), so a set $S$ with $\tfrac12<\alpha(S)$ and $\theta(S)<\tfrac12$ is a system whose integers are well behaved and whose zeta function violates the analogue of RH. Zero-density estimates for Beurling zeta functions near the line $\re s=1$ are due to R\'ev\'esz \cite{Revesz}.
+
+\subsection{Results}
+Under RH, our first two theorems determine $\theta(S)$, almost surely, for a random set $S$ of any dimension $\alpha<1$.
+
+\begin{theorem}[Upper bound for random deletions]\label{thm:upper}
+Assume RH. Let $0<\alpha<1$, and let $S$ be a random set of primes containing each prime $p$ independently with probability $p^{\alpha-1}$. Then almost surely $\alpha(S)=\alpha$ and $\theta(S)\le\alpha/2$.
+\end{theorem}
+
+\begin{theorem}[Lower bound for random deletions]\label{thm:lower}
+Let $0<\alpha<1$ and let $S$ be as in Theorem~\ref{thm:upper}. Then almost surely $\theta(S)\ge\alpha/2$. This does not assume RH.
+\end{theorem}
+
+\begin{corollary}\label{cor:systems}
+Assume RH, and let $S$ be as in Theorem~\ref{thm:upper}.
+\begin{enumerate}
+\item For every $0<\alpha<1$, almost surely $\theta(S)=\theta_2(S)=\alpha/2$.
+\item If $\tfrac12<\alpha<1$, then almost surely $(\PP\setminus S,\cN_S)$ is an $[\alpha,\alpha/2]$-system and $\zeta_S(\alpha)=0$.
+\item If $\tfrac12<\alpha<1$, then almost surely, for every $\beta$ with $\alpha/2<\beta<\tfrac12$, the Beurling number system $\PP_\beta$ whose generalized primes are $\PP\setminus S$ together with $p^{1/\beta}$, $p\in\PP$, is an $[\alpha,\beta]$-system: for every $\gamma$ with $\alpha/2<\gamma<\beta$,
+\[
+N_{\PP_\beta}(x)=a_S\,\zeta(1/\beta)\,x+\zeta_S(\beta)\,x^{\beta}+O_{\beta,\gamma}\bigl(x^{\beta/(1+\beta-\gamma)}\bigr),\qquad \zeta_S(\beta)\ne0,
+\]
+the generalized integers being counted with multiplicity, as in \cite{BDR}. Consequently, under RH, $[\alpha,\beta]$-systems exist for all $\tfrac12<\alpha<1$ and $\alpha/2\le\beta<\tfrac12$.
+\end{enumerate}
+\end{corollary}
+
+Since $\alpha/2<2\alpha/(\alpha+2)$, part (2) gives pairs outside the range \eqref{eq:BDR}, with the smallest $\beta$ that a random deletion allows, and part (3), which adjoins the generalized primes $p^{1/\beta}$ as in \cite{BDR}, fills the band $\alpha/2\le\beta<\tfrac12$ for every $\tfrac12<\alpha<1$; this band contains the region \eqref{eq:BDR}. In this construction the integer exponent is $\max(\theta(S),\beta)$, so pairs with $\beta<\alpha/2$ would need a deletion of dimension $\alpha$ with $\theta(S)<\alpha/2$, which Theorem~\ref{thm:lower} rules out for random deletions; see Section~\ref{subsec:largealpha}. The comparison with \cite[\S5]{BDR} is as follows. There the deleted set $S$ is produced by the random approximation procedure of Broucke and Vindas \cite{BV}, with $\pi_S(x)\sim\li(x^{\alpha})$ and, under RH, $\sum_{n\le x}\mu_S(n)\ll_\eps x^{\alpha/2+\eps}$; the integers of $\PP\setminus S$ are then counted by the hyperbola method, with error $O_\eps(x^{2\alpha/(\alpha+2)+\eps})$ for $\tfrac12<\alpha<\tfrac23$, and the systems \eqref{eq:BDR} are obtained by adjoining $\PP^{1/\beta}$. Theorem~\ref{thm:upper} counts the integers of the Bernoulli deletion with error $O_\eps(x^{\alpha/2+\eps})$, for every $0<\alpha<1$. The gain comes from the centred random variables in the expansion of Lemma~\ref{lem:chaos}: the mean of $N_S(x)$ is the summatory function of $\prod_{p\mid n}(1-p^{\alpha-1})$, with Dirichlet series $\zeta(s)/\zeta(s+1-\alpha)$, and its error term is small under RH (Proposition~\ref{prop:ed}).
+
+Because the rational primes themselves are an example if RH fails, Theorem~\ref{thm:upper} has an unconditional consequence. Its proof is a case split on RH, and it does not exhibit the set.
+
+\begin{corollary}\label{cor:quarter}
+For every $\theta>\tfrac14$ there is a set of primes $S$ with $N_S(x)=a_Sx+O(x^{\theta})$ such that $\zeta_S$, which is analytic in $\re s>\theta$ apart from a simple pole at $s=1$, has a zero with real part greater than $\tfrac12$.
+\end{corollary}
+
+The next theorem is a lower bound for deterministic sets with a smooth counting function. For $0<\alpha<1$ put
+\[
+\li_\alpha(x)=\int_2^x\frac{u^{\alpha-1}}{\log u}\,du\quad(x\ge2),\qquad \li_\alpha(x)=0\quad(x<2),
+\]
+and write $\pi_S(x)=\#\{p\le x:p\in S\}$.
+
+\begin{theorem}[Smooth deletions]\label{thm:smooth}
+Let $0<\alpha<1$, $c_0>0$ and $0\le\delta<1$, and let $S$ be a set of primes with
+\[
+\pi_S(x)=c_0\li_\alpha(x)+O(x^{\delta}).
+\]
+Suppose $N_S(x)=a_Sx+O(x^{\theta})$ with $0\le\theta<1$. Then for every $\sigma>\max(\theta,\delta)$ and all $X\ge2$,
+\begin{equation}\label{eq:smoothcount}
+\#\bigl(S\cap[X,2X]\bigr)\ll X^{2\sigma}(\log X)^2 .
+\end{equation}
+In particular, if $\delta<\alpha/2$, then $\theta(S)\ge\alpha/2$.
+\end{theorem}
+
+Sets $S$ as in Theorem~\ref{thm:smooth} with $c_0=1$ and $\delta<\alpha/2$ exist for every $\alpha<0.95$ (Remark~\ref{rem:exist}).
+
+For every deletion, and without RH, we prove the following bound. Part (1) is elementary; parts (2) and (3) use, in addition, Landau's and Karamata's theorems, through Theorem~\ref{thm:quant} below, but nothing about the zeros of $\zeta$. For an integer $k\ge1$ and $0<\alpha<1$ put
+\begin{equation}\label{eq:kappak}
+\kappa_k(\alpha)=\frac{1-\alpha}{2(1-\alpha)+\alpha^2/k}\quad\bigl(\alpha\le\tfrac12\bigr),\qquad
+\kappa_k(\alpha)=\frac{1-\alpha}{1+(1-\alpha)^2/k}\quad\bigl(\alpha\ge\tfrac12\bigr).
+\end{equation}
+The two expressions agree at $\alpha=\tfrac12$; $\kappa_1(\alpha)=(1-\alpha)/(1+(1-\alpha)^2)$; and $\kappa_k(\alpha)<\min(\tfrac12,1-\alpha)$ increases with $k$ to $\min(\tfrac12,1-\alpha)$.
+
+\begin{theorem}[Every deletion]\label{thm:elementary}
+Let $S$ be a set of primes with $0<\alpha=\alpha(S)<1$.
+\begin{enumerate}
+\item For every $\kappa<\kappa_1(\alpha)$ and $\eps>0$ there are arbitrarily large $X$ with
+\[
+\frac1X\int_X^{2X}\bigl(N_S(x)-a_Sx\bigr)^2dx\gg_{S,\kappa,\eps}X^{\alpha\kappa-\eps}.
+\]
+\item For every integer $k\ge1$, $2\theta_2(S)\ge\alpha\,\kappa_k(\alpha)$.
+\item Consequently
+\[
+\theta(S)\ \ge\ \theta_2(S)\ \ge\ \frac{\alpha}{2}\min\Bigl(\frac12,\,1-\alpha\Bigr):
+\]
+$\alpha(S)\le4\theta_2(S)$ if $\alpha(S)\le\tfrac12$, and $\alpha(S)(1-\alpha(S))\le2\theta_2(S)$ if $\alpha(S)\ge\tfrac12$.
+\end{enumerate}
+\end{theorem}
+
+By Corollary~\ref{cor:systems}, under RH, random deletions have $\theta_2(S)=\alpha/2$, so the constant $4$ in part (3) cannot be replaced by a constant smaller than $2$. Part (1) gives $\theta(S)\ge\alpha\kappa_1(\alpha)/2=\alpha(1-\alpha)/(2(1+(1-\alpha)^2))$, with test moduli that are deleted primes; part (2) reaches $\kappa_k(\alpha)$ with test moduli that are products of deleted primes from $k$ dyadic blocks.
+
+\begin{corollary}[The counterexample window]\label{cor:window}
+Let $0\le\theta<\tfrac18$, and let $S$ be a set of primes with $\theta_2(S)\le\theta<\alpha(S)/2$. Then
+\[
+\alpha(S)\in(2\theta,4\theta]\cup[1-u(\theta),1),\qquad u(\theta)=\frac{1-\sqrt{1-8\theta}}{2}=2\theta+4\theta^2+16\theta^3+O(\theta^4),
+\]
+where $u(\theta)$ is the root in $[0,\tfrac12)$ of $u(1-u)=2\theta$.
+\end{corollary}
+
+\begin{corollary}[Dimension zero]\label{cor:dimzero}
+For every set of primes $S$: if $\theta_2(S)<1$ then $\alpha(S)<1$; and if $\theta_2(S)=0$, in particular if $N_S(x)=a_Sx+O_\eps(x^{\eps})$ for every $\eps>0$, then $\alpha(S)=0$, that is, $\sum_{p\in S}p^{-\eps}<\infty$ for every $\eps>0$.
+\end{corollary}
+
+The proof of Theorem~\ref{thm:elementary}(2) needs dense blocks of deleted primes at $k$ prescribed scales. The dimension, a $\limsup$, gives one dense block at infinitely many scales but says nothing about where; the following rigidity on the real axis gives dense blocks in every polynomial range (Proposition~\ref{prop:goodscales}).
+
+\begin{theorem}[Mertens sums are quantized]\label{thm:quant}
+Let $S$ be a set of primes with $0<\alpha=\alpha(S)<1$ and $\theta_2(S)<\alpha$. Then there is an integer $m\ge1$ with
+\[
+\sum_{p\in S,\ p\le x}\frac{\log p}{p^{\alpha}}=m\log x+o(\log x),
+\]
+and $m$ is the order of the zero of $\zeta_S$ at $\alpha$.
+\end{theorem}
+
+For example, if $\pi_S(x)\sim c\,\li(x^{\alpha})$ with $c\notin\Z$, or $\pi_S(x)\sim cx^{\alpha}$, then the Mertens sum is asymptotic to $c\log x$, respectively to $\tfrac{c\alpha}{2}\log^2x$, so $\theta_2(S)=\theta(S)=\alpha(S)$: the integers of such a deletion are as irregular as its dimension allows. The random sets of Theorem~\ref{thm:upper} have $m=1$. Theorem~\ref{thm:quant} is a converse theorem of Selberg--Delange type, like the theorems of Koukoulopoulos \cite{K13} and of Koukoulopoulos and Soundararajan \cite{KS20}: small partial sums of a multiplicative function force its average over the primes to take quantized values, determined by the zeros of its Dirichlet series. There the Dirichlet series is continued across $\re s=1$ and the average is over all primes; here the continuation is at the real point $\alpha$, the average is over the deleted primes, and $m$ is the order of the zero of $\zeta_S$ at $\alpha$.
+
+Theorems~\ref{thm:upper}--\ref{thm:quant} leave open whether the constant $4$ in Theorem~\ref{thm:elementary}(3) can be lowered to $2$.
+
+\begin{question}\label{q:rigid}
+Does every set of primes $S$ with $\alpha(S)\le\tfrac12$ satisfy $\theta(S)\ge\alpha(S)/2$?
+\end{question}
+
+By Theorem~\ref{thm:upper} the constant $2$ cannot be improved (under RH). Theorems~\ref{thm:lower} and~\ref{thm:smooth} prove $\theta(S)\ge\alpha(S)/2$ for random and for smooth sets, and Theorem~\ref{thm:elementary} proves it with $4$ in place of $2$, in mean square, for every $S$ with $\alpha(S)\le\tfrac12$. For a bounded error term the analogous statement is a theorem: Klurman, Mangerel, Pohoata and Ter\"av\"ainen \cite{KMPT} proved that a completely multiplicative $f$ with $\sum_{n\le x}f(n)=cx+O(1)$, $c\ne0$, has $f(p)=1$ for all but finitely many primes, answering a question of Ruzsa; for $f=1_{\cN_S}$ this says that $N_S(x)=a_Sx+O(1)$ forces $S$ to be finite. Their method uses Chinese-remainder moduli that grow exponentially, and we do not see how to extend it to power savings; Question~\ref{q:rigid} asks for the power-saving form, and the second part of Corollary~\ref{cor:dimzero} is its $O(x^{\eps})$ form. Two further results of this rigid kind concern general systems: Lagarias \cite{Lagarias} showed that a Beurling integer system contained in $\N$ with the Delone property has all but finitely many of the rational primes among its generalized primes, and Hilberdink \cite{H12} showed the same for systems with $N(x)-cx$ periodic and finitely many discontinuities in bounded intervals. The stronger inequality $\theta(S)\ge\min(\alpha(S)/2,\tfrac14)$ for every $S$, which under RH would make $\tfrac14$ the threshold in Corollary~\ref{cor:quarter}, appears to fail for $\alpha(S)$ close to $1$; see Section~\ref{subsec:largealpha}.
+
+\subsection{Methods and organisation}
+Section~\ref{sec:prelim} collects the continuation of $\zeta_S$, the real zero, and the classical tools. Theorem~\ref{thm:smooth} is proved in Section~\ref{sec:smooth}: regularity of the integers makes $\log Z_S$ of size $O(\log|t|)$ on vertical lines to the right of $\max(\theta,\delta)$, after its smooth part is removed, and Plancherel's identity at a height $T\asymp X$ that separates consecutive integers near $X$ lets every deleted prime contribute its own energy. Theorem~\ref{thm:quant} is proved in Section~\ref{sec:quant}: regularity in mean square continues $Z_S=\zeta_S/\zeta$ to a neighbourhood of the real point $\alpha$, where $\zeta$ has no zero; Landau's theorem forces a zero of $Z_S$ at $\alpha$, and Karamata's Tauberian theorem turns its order into a Mertens law. Theorem~\ref{thm:elementary} is proved in Section~\ref{sec:elementary}. It tests $N_S(x)-a_Sx$ against the first harmonics of the sawtooth functions $\{x/q\}-\tfrac12$ of products $q=q_1\cdots q_k$ of deleted primes from $k$ dense dyadic blocks at scales near $Y^{1/k}$: each product resonates coherently with the moduli it divides, and since a product divides an integer only if each of its factors does, near-resonances with large moduli are rare (Lemma~\ref{lem:rigidity}). Theorem~\ref{thm:lower} is proved in Section~\ref{sec:lower}: if $\theta(S)<\alpha/2$, the random Dirichlet series $\sum_p(1_{p\in S}-p^{\alpha-1})p^{-s}$ would continue analytically across a segment of the line $\re s=\alpha/2$, but its mean squares over every such segment are unbounded. Theorem~\ref{thm:upper} is proved in Section~\ref{sec:upper} by an expansion of $N_S(x)-a_Sx$ in products of centred variables, a moment bound, and an estimate under RH for the error terms of a family of multiplicative functions, obtained from Perron's formula after the small divisors are split off. Corollaries~\ref{cor:window} and~\ref{cor:dimzero} are proved at the end of Section~\ref{sec:elementary}, and Corollaries~\ref{cor:systems} and~\ref{cor:quarter} in Section~\ref{sec:cor}. Section~\ref{sec:remarks} discusses Question~\ref{q:rigid} and the formal verification.
+
+The constants implied by $\ll$ and $O$ may depend on $S$, $\alpha$, $\sigma$, $\eps$, $k$ and on the fixed test functions, and on nothing else unless indicated. We write $s=\sigma+it$ and $e(u)=\e^{2\pi iu}$.
+
+\section{Preliminaries}\label{sec:prelim}
+
+\subsection{The zeta function of a deletion}
+Let $\cD_S$ be the set of squarefree positive integers all of whose prime factors lie in $S$ (so $1\in\cD_S$), and let $\mu_S(d)=\mu(d)$ for $d\in\cD_S$ and $\mu_S(d)=0$ otherwise. Then $1_{\cN_S}(n)=\sum_{d\mid n}\mu_S(d)$, $a_S=\sum_d\mu_S(d)/d$, and, for $\re s>\alpha(S)$, the product $Z_S(s)$ of \eqref{eq:zetaS} converges absolutely, is zero free, and equals $\sum_{d}\mu_S(d)d^{-s}$.
+
+\begin{lemma}\label{lem:cont}
+Write $N_S(x)=a_Sx+R(x)$, and let $0\le\theta<1$.
+\begin{enumerate}
+\item If $|R(x)|\le Cx^{\theta}$ for $x\ge1$, then $\zeta_S$ continues analytically to $\re s>\theta$, apart from a simple pole at $s=1$, by
+\begin{equation}\label{eq:cont}
+\zeta_S(s)=\frac{a_Ss}{s-1}+s\int_1^\infty R(x)x^{-s-1}\,dx ,\qquad\text{so}\qquad |\zeta_S(s)|\le\frac{a_S|s|}{|s-1|}+\frac{C|s|}{\sigma-\theta}.
+\end{equation}
+For $S=\emptyset$ this reads $|\zeta(s)|\le|s|/|s-1|+|s|/\sigma$ for $\sigma>0$.
+\item If $\int_X^{2X}R(x)^2dx\le CX^{1+2\theta}$ for $X\ge1$, then the integral in \eqref{eq:cont} converges absolutely for $\sigma>\theta$, and $\zeta_S$ continues analytically to $\re s>\theta$, apart from a simple pole at $s=1$, by \eqref{eq:cont}. In particular this holds for every $\theta>\theta_2(S)$.
+\end{enumerate}
+In both cases the identity $\zeta_S=\zeta Z_S$ holds in $\re s>\max(\theta,\alpha(S))$.
+\end{lemma}
+
+\begin{proof}
+For $\re s>1$, partial summation gives $\zeta_S(s)=s\int_1^\infty N_S(x)x^{-s-1}dx$, which is \eqref{eq:cont}. In case (1) the integral in \eqref{eq:cont} converges absolutely for $\sigma>\theta$. In case (2), by the Cauchy--Schwarz inequality, for $X\ge1$ and $\sigma>\theta$,
+\[
+\int_X^{2X}|R(x)|x^{-\sigma-1}dx\le X^{-\sigma-1}\Bigl(X\int_X^{2X}R(x)^2dx\Bigr)^{1/2}\le C^{1/2}X^{\theta-\sigma},
+\]
+which is summable over $X=2^j$. Both sides of $\zeta_S=\zeta Z_S$ are meromorphic in $\re s>\max(\theta,\alpha(S))$ and agree for $\re s>1$.
+\end{proof}
+
+\begin{proposition}[The real zero]\label{prop:realzero}
+If $\theta_2(S)<\alpha(S)<1$, then $\zeta_S(\alpha(S))=0$. In particular this holds if $\theta(S)<\alpha(S)<1$.
+\end{proposition}
+
+\begin{proof}
+Write $\alpha=\alpha(S)$. By Lemma~\ref{lem:cont}(2), and since $\zeta$ has no zero on the real segment $(0,1)$, the function $Z_S=\zeta_S/\zeta$ is analytic in a neighbourhood of $\alpha$. For real $\sigma>\alpha$ we have $Z_S(\sigma)>0$ and
+\[
+-\log Z_S(\sigma)=\sum_{p\in S}\sum_{k\ge1}\frac{p^{-k\sigma}}{k},
+\]
+a Dirichlet series with non-negative coefficients whose abscissa of convergence is $\alpha$. If $Z_S(\alpha)\ne0$, then $Z_S$ would have an analytic logarithm in a disc about $\alpha$, which after adding a constant agrees with $\log Z_S(\sigma)$ for real $\sigma>\alpha$ in the disc; so the Dirichlet series would continue analytically to a neighbourhood of $\alpha$, contradicting Landau's theorem. Hence $Z_S(\alpha)=0$, and $\zeta_S(\alpha)=\zeta(\alpha)Z_S(\alpha)=0$.
+\end{proof}
+
+\subsection{Tools}
+We use the following classical results.
+
+\smallskip\noindent\emph{Landau's theorem} \cite[Theorem~1.7]{MVbook}. A Dirichlet series $\sum_na_nn^{-s}$ with $a_n\ge0$ and finite abscissa of convergence $\sigma_c$ has a singularity at $s=\sigma_c$: it does not continue analytically to any neighbourhood of $\sigma_c$.
+
+\smallskip\noindent\emph{The Hardy--Littlewood--Karamata Tauberian theorem} \cite[Theorem~1.7.1]{BGT}; see also \cite{Korevaar}. If $A$ is non-decreasing on $[0,\infty)$ and $\int_{[0,\infty)}\e^{-\eps u}dA(u)\sim m/\eps$ as $\eps\to0+$, then $A(u)\sim mu$ as $u\to\infty$.
+
+\smallskip\noindent\emph{The Borel--Carath\'eodory theorem} \cite[\S5.5]{TitFunctions}. If $f$ is analytic on $|z-z_0|\le R$, $f(z_0)=0$ and $\re f\le M$ on $|z-z_0|=R$, then $|f(z)|\le 2rM/(R-r)$ for $|z-z_0|\le r<R$.
+
+\smallskip\noindent\emph{Perron's formula} \cite[Corollary~5.3]{MVbook}. If $F(s)=\sum_ma(m)m^{-s}$ converges absolutely for $\re s>1$, $c>1$, $y\ge2$ and $T\ge2$, then
+\[
+\sum_{m\le y}a(m)=\frac1{2\pi i}\int_{c-iT}^{c+iT}F(s)\frac{y^s}{s}\,ds+O\Bigl(\sum_{y/2<m<2y}|a(m)|\min\Bigl(1,\frac{y}{T|y-m|}\Bigr)+\frac{4^c+y^c}{T}\sum_m\frac{|a(m)|}{m^c}\Bigr).
+\]
+
+\smallskip\noindent\emph{Consequences of RH} \cite[Theorem~14.2]{Tit}. Assume RH. For every $\eps>0$,
+\begin{equation}\label{eq:RH1}
+\zeta(s)\ll|t|^{\eps}\quad\text{and}\quad \zeta(s)^{-1}\ll|t|^{\eps}\qquad\text{uniformly for }\sigma\ge\tfrac12+\eps,\ |t|\ge1,
+\end{equation}
+and $\psi(x)=x+O(x^{1/2}\log^2x)$ (von Koch; see \cite[Theorem~13.1]{MVbook}).
+
+\section{Smooth deletions: proof of Theorem~\ref{thm:smooth}}\label{sec:smooth}
+
+\subsection{Two functions with the same zeros}
+
+\begin{lemma}\label{lem:blaschke}
+Let $0<r<R$ and $M\ge0$. Let $f_1,f_2$ be analytic in a neighbourhood of the disc $D=\{|s-s_0|\le R\}$, with $f_j(s_0)\ne0$ and $|f_j(s)|\le \e^{M}|f_j(s_0)|$ on $D$ for $j=1,2$, and suppose $f_1$ and $f_2$ have the same zeros in $D$ with the same multiplicities. Let $\Lambda$ be an analytic logarithm of the zero-free function $f_1/f_2$ on the interior of $D$. Then
+\[
+|\Lambda(s)-\Lambda(s_0)|\le\frac{8rM}{R-r}\qquad(|s-s_0|\le r).
+\]
+\end{lemma}
+
+\begin{proof}
+Put $R'=(r+R)/2$ and let $\rho_1,\dots,\rho_m$ be the common zeros in $|s-s_0|<R'$, with multiplicity. The Blaschke product
+\[
+\mathcal B(s)=\prod_{j=1}^m\frac{R\,(s-\rho_j)}{R^2-\overline{(\rho_j-s_0)}\,(s-s_0)}
+\]
+is analytic on $D$, has modulus $1$ on $|s-s_0|=R$, vanishes exactly at the $\rho_j$, and $|\mathcal B(s_0)|\le1$. So $g_j=f_j/\mathcal B$ is analytic on $D$ and zero free on $|s-s_0|<R'$, and by the maximum principle
+\[
+|g_j(s)|\le\max_{|z-s_0|=R}|f_j(z)|\le \e^{M}|f_j(s_0)|\le \e^{M}|g_j(s_0)|\qquad(s\in D).
+\]
+Let $\ell_j$ be the analytic logarithm of $g_j/g_j(s_0)$ on $|s-s_0|<R'$ with $\ell_j(s_0)=0$. Then $\re\ell_j\le M$, and the Borel--Carath\'eodory theorem, applied on discs of radius tending to $R'$, gives $|\ell_j(s)|\le 2rM/(R'-r)$ for $|s-s_0|\le r$. Since $f_1/f_2=g_1/g_2$, the functions $\Lambda-\Lambda(s_0)$ and $\ell_1-\ell_2$ are analytic logarithms of the same function on $|s-s_0|<R'$ and both vanish at $s_0$, so they are equal. Hence $|\Lambda(s)-\Lambda(s_0)|\le 4rM/(R'-r)=8rM/(R-r)$.
+\end{proof}
+
+\subsection{The smooth model}
+Let $S$, $\alpha$, $c_0$, $\delta$, $\theta$ be as in Theorem~\ref{thm:smooth}, and fix $\sigma>\max(\theta,\delta)$. We may assume $\sigma<1$, since \eqref{eq:smoothcount} is trivial otherwise. Let $\Pi_S(x)=\sum_{k\ge1}\pi_S(x^{1/k})/k$, a step function with a jump of $1/k$ at $p^k$ for each $p\in S$, $k\ge1$. For $k\ge1$ the substitution $u=z^{1/k}$ gives
+\[
+\li_\alpha(x^{1/k})=\ell_k(x):=\int_{2^k}^x\frac{z^{\alpha/k-1}}{\log z}\,dz\quad(x\ge2^k),\qquad \ell_k(x)=0\quad(x<2^k).
+\]
+Choose an integer $K$ with $1/(K+1)<\sigma$ and put
+\[
+\Pi^*(x)=c_0\sum_{k=1}^K\frac{\ell_k(x)}{k},\qquad \Delta(x)=\Pi_S(x)-\Pi^*(x).
+\]
+Since $\pi_S(y)\le y$, the terms $k>K$ of $\Pi_S(x)$ contribute $O(x^{1/(K+1)}\log x)$, so
+\begin{equation}\label{eq:Delta}
+\Delta(x)\ll x^{\delta_1}\qquad\text{for some }\delta_1\text{ with }\max\bigl(\delta,\tfrac{1}{K+1}\bigr)<\delta_1<\sigma .
+\end{equation}
+Fix such a $\delta_1$, and fix $\sigma_1$ with $\max(\theta,\delta_1)<\sigma_1<\sigma$. Define
+\[
+\cE(s)=s\int_1^\infty\Delta(x)x^{-s-1}\,dx\quad(\re s>\delta_1),\qquad \cL(s)=\int_1^\infty x^{-s}\,d\Pi^*(x)\quad(\re s>\alpha).
+\]
+$\cE$ is analytic in $\re s>\delta_1$.
+
+\begin{lemma}\label{lem:E1}
+$\cL$ continues analytically to $\C\setminus(-\infty,\alpha]$, and $\cL(\sigma'+it)\ll 1/|t|$ uniformly for $\sigma'\ge0$ and $t\ne0$.
+\end{lemma}
+
+\begin{proof}
+With $x=\e^v$, $\int_{2^k}^\infty x^{\alpha/k-1-s}\,dx/\log x=E_1\bigl((s-\alpha/k)k\log2\bigr)$, where $E_1(z)=\int_1^\infty \e^{-zu}u^{-1}du$ for $\re z>0$. For $z>0$ the substitution $u=1+r/z$ gives
+\[
+E_1(z)=\e^{-z}\int_0^\infty\frac{\e^{-r}}{z+r}\,dr ,
+\]
+and the right side is analytic in $z\in\C\setminus(-\infty,0]$, with $|E_1(z)|\le \e^{-\re z}/|\im z|$ for $\im z\ne0$. So $\cL(s)=c_0\sum_{k\le K}k^{-1}E_1((s-\alpha/k)k\log2)$ is analytic off $(-\infty,\alpha]$, and $|\cL(\sigma'+it)|\le c_0\sum_{k\le K}2^{\alpha-k\sigma'}/(k^2|t|\log2)$.
+\end{proof}
+
+\begin{lemma}\label{lem:pointwise}
+For real $t$, $\cE(\sigma+it)\ll\log(2+|t|)$.
+\end{lemma}
+
+\begin{proof}
+For $\re s>\max(\alpha,\delta_1)$, partial integration gives $\cE(s)=\int_1^\infty x^{-s}d\Delta(x)$, so
+\begin{equation}\label{eq:logZ}
+-\log Z_S(s)=\sum_{p\in S}\sum_{k\ge1}\frac{p^{-ks}}{k}=\int_1^\infty x^{-s}\,d\Pi_S(x)=\cL(s)+\cE(s).
+\end{equation}
+By Lemma~\ref{lem:E1} the function $\Lambda_S=-\cL-\cE$ is analytic in $\Omega=\{\re s>\delta_1,\ \im s\ne0\}$, and $\e^{\Lambda_S}=Z_S$ for $\re s>\max(\alpha,\delta_1)$. By Lemma~\ref{lem:cont}, $\zeta_S$ is analytic in $\{\re s>\theta\}\setminus\{1\}$ and $\zeta_S=\zeta Z_S$ for $\re s>1$. By analytic continuation along each of the two components of $\Omega\cap\{\re s>\theta\}$,
+\[
+\zeta_S(s)=\zeta(s)\,\e^{\Lambda_S(s)}\qquad(\re s>\max(\theta,\delta_1),\ \im s\ne0).
+\]
+So in this region $\zeta_S$ and $\zeta$ have the same zeros with the same multiplicities, and $\Lambda_S$ is an analytic logarithm of $\zeta_S/\zeta$.
+
+Let $|t_0|\ge3$ and apply Lemma~\ref{lem:blaschke} with $f_1=\zeta_S$, $f_2=\zeta$, $s_0=2+it_0$, $R=2-\sigma_1$ and $r=2-\sigma$. The disc $D=\{|s-s_0|\le R\}$ lies in $\{\re s\ge\sigma_1,\ |\im s|\ge1\}$. By Lemma~\ref{lem:cont}, $|\zeta_S(s)|\ll|t_0|$ and $|\zeta(s)|\ll|t_0|$ on $D$, and $|\zeta_S(s_0)|,|\zeta(s_0)|\ge\prod_p(1+p^{-2})^{-1}=\zeta(4)/\zeta(2)$. So the lemma applies with $M=\log|t_0|+O(1)$ and gives $|\Lambda_S(\sigma+it_0)-\Lambda_S(s_0)|\ll\log|t_0|$. By \eqref{eq:logZ}, $|\Lambda_S(s_0)|\le\log\zeta(2)$. With Lemma~\ref{lem:E1},
+\[
+\cE(\sigma+it_0)=-\Lambda_S(\sigma+it_0)-\cL(\sigma+it_0)\ll\log|t_0|\qquad(|t_0|\ge3).
+\]
+For $|t|\le3$, $\cE(\sigma+it)$ is bounded, because $\cE$ is analytic in $\re s>\delta_1$.
+\end{proof}
+
+\subsection{Plancherel at a resolving height}
+Fix a real function $\eta_0\in C_c^\infty((-1,1))$, not identically zero, and put $\nu=\eta_0'$, so that $\int\nu=0$. For $T\ge1$ let $\nu_T(u)=T\nu(Tu)$, supported in $[-1/T,1/T]$, with Fourier transform $\widehat{\nu_T}(t)=\int\nu_T(u)\e^{-itu}du=\widehat\nu(t/T)$.
+
+Let $r(v)=\Delta(\e^v)$ for $v\ge0$, and $f(v)=r(v)\e^{-\sigma v}$ for $v\ge0$, $f(v)=0$ for $v<0$. By \eqref{eq:Delta}, $|f(v)|\ll \e^{-(\sigma-\delta_1)v}$, so $f\in L^1(\R)\cap L^2(\R)$, and
+\[
+\widehat f(t)=\int_0^\infty r(v)\e^{-(\sigma+it)v}\,dv=\frac{\cE(\sigma+it)}{\sigma+it}.
+\]
+Define $F=f*(\nu_T'+\sigma\nu_T)$. Then $F\in L^2(\R)$, $\widehat F(t)=\cE(\sigma+it)\,\widehat\nu(t/T)$, and by Plancherel's identity and Lemma~\ref{lem:pointwise},
+\begin{equation}\label{eq:upperF}
+\int_\R|F(u)|^2\,du=\frac1{2\pi}\int_\R|\cE(\sigma+it)|^2\,|\widehat\nu(t/T)|^2\,dt\ll T\int_\R\log^2(2+T|\tau|)\,|\widehat\nu(\tau)|^2\,d\tau\ll T\log^2(2+T).
+\end{equation}
+
+On the other hand, $r$ has bounded variation on bounded intervals and $r(0)=0$, so partial integration gives
+\[
+F(u)=\int_{[0,\infty)}\nu_T(u-v)\,\e^{-\sigma v}\,dr(v)=\sum_{p\in S}\sum_{k\ge1}\frac{p^{-k\sigma}}{k}\,\nu_T(u-k\log p)-(g*\nu_T)(u),
+\]
+where $g(v)=\e^{-\sigma v}\,\frac{d}{dv}\Pi^*(\e^v)=c_0\sum_{k\le K}k^{-1}\e^{(\alpha/k-\sigma)v}v^{-1}1_{v>k\log2}$.
+
+Now let $X\ge 2^{K+2}$ and $T=32X$. The atoms of the sum lie at the points $\log n$, where $n=p^k$ is an integer. Distinct integers $n<n'$ in $[X/2,4X]$ satisfy $\log n'-\log n\ge 1/(2n)\ge 1/(8X)>2/T$, so the functions $\nu_T(\cdot-\log n)$, $n\in[X/2,4X]$, have disjoint supports $I_n=[\log n-1/T,\log n+1/T]$. For a prime $p\in S\cap[X,2X]$ and $u\in I_p$, only the atom at $\log p$ contributes, and
+\[
+F(u)=p^{-\sigma}\nu_T(u-\log p)-(g*\nu_T)(u).
+\]
+Since $\int\nu_T=0$ and $g$ is smooth on $[\log X-1,\log2X+1]$ with $g'(v)\ll X^{\alpha-\sigma}$ there,
+\[
+|(g*\nu_T)(u)|=\Bigl|\int\bigl(g(u-w)-g(u)\bigr)\nu_T(w)\,dw\Bigr|\ll\frac{X^{\alpha-\sigma}}{T}\qquad(\log X-\tfrac12\le u\le\log2X+\tfrac12).
+\]
+Using $|a-b|^2\ge\tfrac12|a|^2-|b|^2$, $\|\nu_T\|_2^2=T\|\nu\|_2^2$, and the disjointness of the $I_p$,
+\[
+\int_\R|F|^2\ge\sum_{p\in S\cap[X,2X]}\int_{I_p}|F|^2\ge\tfrac12\|\nu\|_2^2\,T\,(2X)^{-2\sigma}\,\#\bigl(S\cap[X,2X]\bigr)-O\bigl(X^{2(\alpha-\sigma)}T^{-2}\bigr).
+\]
+Comparing with \eqref{eq:upperF} and using $T=32X$,
+\[
+\#\bigl(S\cap[X,2X]\bigr)\ll X^{2\sigma}\log^2X+X^{2\alpha-3}\ll X^{2\sigma}\log^2X ,
+\]
+which is \eqref{eq:smoothcount} for $X\ge2^{K+2}$; for smaller $X$ it is trivial.
+
+Finally let $\delta<\alpha/2$. Then $\#(S\cap[X,2X])=c_0(\li_\alpha(2X)-\li_\alpha(X))+O(X^{\delta})\gg X^{\alpha}/\log X$, and \eqref{eq:smoothcount} gives $\alpha\le2\sigma$ for every $\sigma>\max(\theta,\delta)$. So $\alpha\le2\max(\theta,\delta)$, and since $2\delta<\alpha$, $\alpha\le2\theta$. This holds for every admissible $\theta$, so $\theta(S)\ge\alpha/2$. \qed
+
+\begin{remark}\label{rem:exist}
+Sets as in Theorem~\ref{thm:smooth} exist. Let $0<\alpha<0.95$, and go through the primes in increasing order, putting $p$ in $S$ exactly when $\pi_S(p-)+1\le\li_\alpha(p)$. Then $\pi_S\le\li_\alpha$, and the deficit $\li_\alpha-\pi_S$ drops by $1$ at each prime at which it is at least $1$. By the theorem of Baker, Harman and Pintz \cite{BHP}, an interval $[y,y+h]$ with $h\ge y^{0.525}$ contains $\gg h/\log y$ primes, while $\li_\alpha$ increases by $\ll hy^{\alpha-1}/\log y$ on it. So the deficit is $O(1+x^{\alpha-0.475})$, that is, $\pi_S(x)=\li_\alpha(x)+O(x^{\delta})$ with $\delta=\max(0,\alpha-0.475)<\alpha/2$.
+\end{remark}
+
+\begin{remark}
+The argument uses the main term $c_0\li_\alpha$ only through Lemma~\ref{lem:E1} and the bound for $g'$. We expect it to apply to other smooth main terms whose Mellin--Stieltjes transform continues analytically to $\{\re s>\delta\}$ off the real axis with at most logarithmic growth on vertical lines, but we prove Theorem~\ref{thm:smooth} only for $c_0\li_\alpha$.
+\end{remark}
+
+\section{Quantization: proof of Theorem~\ref{thm:quant}}\label{sec:quant}
+
+Let $S$ be as in Theorem~\ref{thm:quant}, $\alpha=\alpha(S)$, and let $\Lambda_S(p^j)=\log p$ for $p\in S$, $j\ge1$, and $\Lambda_S(n)=0$ for the other $n$.
+
+\emph{Step 1 ($Z_S$ continues to a neighbourhood of $\alpha$).} By Lemma~\ref{lem:cont}(2), $\zeta_S$ is analytic in $\re s>\theta_2(S)$ apart from the pole at $s=1$, and $\theta_2(S)<\alpha<1$. Since $\zeta(\alpha)\ne0$ (indeed $\zeta<0$ on $(0,1)$), $Z_S=\zeta_S/\zeta$ is analytic in a disc about $\alpha$, where it agrees with the absolutely convergent product \eqref{eq:zetaS} for $\re s>\alpha$. No hypothesis about the zeros of $\zeta$ off the real axis is used.
+
+\emph{Step 2 (a zero at $\alpha$).} For $\re s>\alpha$,
+\[
+\frac{Z_S'}{Z_S}(s)=\sum_{p\in S}\frac{\log p\cdot p^{-s}}{1-p^{-s}}=\sum_n\Lambda_S(n)n^{-s},
+\]
+a Dirichlet series with non-negative coefficients whose abscissa of convergence is $\alpha$: the terms with $n=p$ converge exactly for $\sigma>\alpha$, and the prime powers converge for $\sigma>\alpha/2$. By Landau's theorem it has a singularity at $s=\alpha$. Near $\alpha$, $Z_S$ is analytic and not identically zero, so $Z_S'/Z_S$ is meromorphic there, with at most a simple pole at $\alpha$ whose residue is the order $m\ge0$ of the zero of $Z_S$ at $\alpha$. Since $\alpha$ is a singularity, $m\ge1$ and $Z_S'/Z_S(s)=m/(s-\alpha)+O(1)$ near $\alpha$. Since $\zeta(\alpha)\ne0$, $\zeta_S=\zeta Z_S$ also vanishes to order $m$ at $\alpha$.
+
+\emph{Step 3 (Karamata).} The function $A(u)=\sum_{n\le\e^u}\Lambda_S(n)n^{-\alpha}$ is non-decreasing, and
+\[
+\int_{[0,\infty)}\e^{-\eps u}\,dA(u)=\frac{Z_S'}{Z_S}(\alpha+\eps)=\frac m\eps+O(1)\qquad(\eps\to0+).
+\] By the Hardy--Littlewood--Karamata theorem, $A(u)\sim mu$. The prime powers contribute $O(1)$ to $A$, because $\sum_{p\in S}\log p\cdot p^{-2\alpha}<\infty$. \qed
+
+\medskip
+The Mertens law locates dense blocks of $S$ in every polynomial range, and $k$ of them at once.
+
+\begin{proposition}[Good scales]\label{prop:goodscales}
+Let $S$ be a set of primes, $0<\alpha<1$ and $m>0$, and suppose $\sum_{p\in S,\,p\le x}\log p/p^{\alpha}=m\log x+o(\log x)$; by Theorem~\ref{thm:quant} this holds with $\alpha=\alpha(S)$ whenever $\theta_2(S)<\alpha(S)$. Let $\delta,\eps>0$.
+\begin{enumerate}
+\item For every large $X$ there is a power of two $Y\in[X,X^{1+\delta}]$ with $\#(S\cap[Y,2Y))\ge Y^{\alpha-\eps}$.
+\item Let $\lambda_1,\dots,\lambda_k>0$ with $\lambda_i(1+\delta)<\lambda_{i+1}$. For every large $X$ there are powers of two $Y_1<\dots<Y_k$ with $Y_i\in[X^{\lambda_i},X^{\lambda_i(1+\delta)}]$ and $\#(S\cap[Y_i,2Y_i))\ge Y_i^{\alpha-\eps}$; in particular the ranges $[Y_i,2Y_i)$ are disjoint.
+\item $\pi_S(x)\ge x^{\alpha-\eps}$ for every large $x$.
+\end{enumerate}
+\end{proposition}
+
+\begin{proof}
+(1) The Mertens sum over $2X<p\le X^{1+\delta}$ is $m(1+\delta)\log X-m\log(2X)+o(\log X)\ge\tfrac12m\delta\log X$ for large $X$. Each such $p$ lies in a block $[Y,2Y)$ with $Y$ a power of two and $X<p/2<Y\le p\le X^{1+\delta}$. If each of these blocks had fewer than $Y^{\alpha-\eps}$ elements of $S$, the sum would be at most
+\[
+\sum_{Y\ge X,\ Y=2^j}Y^{\alpha-\eps}\,\frac{\log(2Y)}{Y^{\alpha}}=\sum_{2^j\ge X}(j+1)\log2\cdot2^{-j\eps}=o(1),
+\]
+a contradiction for large $X$. (2) Apply (1) with $X^{\lambda_i}$ in place of $X$, for each $i$; then $Y_i\le X^{\lambda_i(1+\delta)}<X^{\lambda_{i+1}}\le Y_{i+1}$, and $Y_i,Y_{i+1}$ are powers of two, so $2Y_i\le Y_{i+1}$. (3) Choose $0<\eps'<1$ with $\alpha(1-\eps')>\alpha-\eps$. The Mertens sum over $x^{1-\eps'}<p\le x$ is at least $\tfrac12m\eps'\log x$ for large $x$, and each of its terms is at most $\log x\cdot x^{-\alpha(1-\eps')}$; so $\#(S\cap(x^{1-\eps'},x])\ge\tfrac12m\eps'x^{\alpha(1-\eps')}\ge x^{\alpha-\eps}$ for large $x$.
+\end{proof}
+
+So when $\theta_2(S)<\alpha(S)$ the dimension, a $\limsup$, is attained at a scale in every polynomial range, and $\pi_S(x)\ge x^{\alpha(S)-\eps}$ at every large $x$.
+
+\section{An elementary lower bound for every deletion}\label{sec:elementary}
+
+In this section we prove Theorem~\ref{thm:elementary} and Corollaries~\ref{cor:window} and~\ref{cor:dimzero}. Here $S$ is any set of primes with $0<\alpha=\alpha(S)<1$; no regularity of $N_S$ is assumed until the last step. We write $\cD=\cD_S$, $a=a_S$, $E(x)=N_S(x)-ax$, and $b(u)=\{u\}-\tfrac12$.
+
+\subsection{Legendre's identity and Rankin's bound}\label{sec:legendre}
+Since $1_{\cN_S}=1*\mu_S$ and $\lfloor u\rfloor=u-\tfrac12-b(u)$, for real $x\ge1$
+\begin{equation}\label{eq:legendre}
+E(x)=-\sum_{d\in\cD,\ d\le x}\mu_S(d)\,b(x/d)-\tfrac12M_S(x)-x\sum_{d\in\cD,\ d>x}\frac{\mu_S(d)}{d},\qquad M_S(x)=\sum_{d\in\cD,\ d\le x}\mu_S(d),
+\end{equation}
+using $a=\sum_{d\in\cD}\mu_S(d)/d$. For $\sigma_1>\alpha$ put $K=K(\sigma_1)=\sum_{d\in\cD}d^{-\sigma_1}=\prod_{p\in S}(1+p^{-\sigma_1})<\infty$. Rankin's argument gives, for $Z\ge1$,
+\begin{equation}\label{eq:rankin}
+\begin{gathered}
+\#\{d\in\cD:d\le Z\}\le KZ^{\sigma_1},\qquad \#\bigl(S\cap[Z,2Z)\bigr)\le K(2Z)^{\sigma_1},\\
+\sum_{d\in\cD,\ d>Z}\frac1d\le KZ^{\sigma_1-1}\quad(\sigma_1\le1).
+\end{gathered}
+\end{equation}
+Since $|b|\le\tfrac12$, \eqref{eq:legendre} and \eqref{eq:rankin} give $|E(x)|\le2Kx^{\sigma_1}$ for $x\ge1$ and $\alpha<\sigma_1\le1$; so $\theta(S)\le\alpha(S)$ for every set of primes $S$ (trivially if $\alpha(S)=1$).
+
+The proof of Theorem~\ref{thm:elementary} tests $E$ against the first harmonics of the sawtooth functions $b(x/q)$ of test moduli $q$ in a set $T_c\subseteq\cD$, at a scale $X$ with $q\approx X^{\kappa}$. Each test modulus resonates with the moduli $d\in\cD$ that it divides, and all of these resonances have the same sign (Step~5). The difficulty is the moduli $d$ of size between $X^{1-\eta}/q$ and $X$, whose sawtooth functions nearly resonate with the harmonic of $q$. For prime test moduli these are controlled by counting prime factors, which reaches $\kappa_1(\alpha)$; for products of primes from $k$ dyadic blocks they are controlled by Lemma~\ref{lem:rigidity}, which reaches $\kappa_k(\alpha)$.
+
+\subsection{The test moduli}
+Fix an integer $k\ge1$ and $0<\kappa<\kappa_k(\alpha)$; recall $\kappa_k(\alpha)<\min(\tfrac12,1-\alpha)$. Let $\gamma>0$ be the margin of Lemma~\ref{lem:exponent} below, $-\gamma=\max_{0\le\tau\le\kappa}f_k(\tau)$. Then fix $\rho>0$ small in terms of $k,\kappa,\gamma$, then $\eta>0$ and $0<\eps<\eta/2$ small in terms of all of these, so that
+\begin{equation}\label{eq:side}
+\kappa<\tfrac12-2\eta,\qquad \kappa<1-\alpha-2\eta,
+\end{equation}
+and so that the quantities $O(\rho+\eta+\eps)$ below are less than $\gamma/4$; finally fix $A>\max(2/\eps,1+10/\eta)$. Put $\sigma_1=\alpha+\eta$ and $K=K(\sigma_1)$. We use test moduli of one of two kinds.
+
+\emph{(i) Prime test moduli ($k=1$).} Since $\sum_{p\in S}p^{-(\alpha-\eta)}=\infty$, there are infinitely many powers of two $Y$ with
+\begin{equation}\label{eq:Tlarge}
+\#T\ge Y^{\alpha-2\eta},\qquad T=S\cap[Y,2Y)
+\end{equation}
+(otherwise $\sum_{p\in S}p^{-(\alpha-\eta)}\ll\sum_jY^{\alpha-2\eta}Y^{-(\alpha-\eta)}<\infty$). Put $T_c=T$.
+
+\emph{(ii) Product test moduli, if $\theta_2(S)<\alpha$.} Let $\lambda_i=(1+i\rho)/\sum_{j=1}^k(1+j\rho)$, $1\le i\le k$, so that $\sum_i\lambda_i=1$, $|\lambda_i-1/k|\le k\rho$, and $\lambda_i(1+\delta')^2<\lambda_{i+1}$ with $\delta'=\rho/(4(1+k\rho))$. By Theorem~\ref{thm:quant} and Proposition~\ref{prop:goodscales}(2), for every large $X_0$ there are powers of two $Y_1<\dots<Y_k$, $Y_i\in[X_0^{\lambda_i},X_0^{\lambda_i(1+\delta')}]$, with $2Y_i\le Y_{i+1}$ and
+\[
+\#T_i\ge Y_i^{\alpha-\eta},\qquad T_i=S\cap[Y_i,2Y_i).
+\]
+Put $Y=\prod_iY_i\in[X_0,X_0^{1+\delta'}]$ and $T_c=\{q_1\cdots q_k:q_i\in T_i\}$. For $I\subseteq\{1,\dots,k\}$ put $T_I=\prod_{i\in I}T_i$, $Y_I=\prod_{i\in I}Y_i$, and $s_I=\log Y_I/\log Y$. Then $|s_I-|I|/k|\le B_k\rho$ with $B_k$ depending only on $k$.
+
+In both cases: by unique factorisation and the disjointness of the ranges, the elements of $T_c$ are distinct elements of $\cD$ with $\mu_S(q)=(-1)^k$ and $Y\le q<2^kY$; $\#T_c\ge Y^{\alpha-2\eta}$; and, by \eqref{eq:rankin}, $\#T_I\le\prod_{i\in I}K(2Y_i)^{\sigma_1}$. Put
+\[
+X=Y^{1/\kappa},\qquad D_0=\frac{X^{1-\eta}}{2^{k+2}Y}.
+\]
+By \eqref{eq:side}, for large $X$,
+\begin{equation}\label{eq:C1}
+4^{k+2}Y^2\le X^{1-3\eta}.
+\end{equation}
+
+\subsection{The test}
+Let $w\in C_c^\infty((1,2))$ with $w\ge0$ and $\int w=1$, and put
+\[
+\langle f,g\rangle=\frac1X\int f(x)\overline{g(x)}\,w(x/X)\,dx,\qquad \Omega(\xi)=\int w(u)e(\xi u)\,du,
+\]
+so that $\Omega(0)=1$ and $|\Omega(\xi)|\le C_A(1+|\xi|)^{-A}$. Then $\langle e(\lambda\,\cdot),e(\lambda'\,\cdot)\rangle=\Omega(X(\lambda-\lambda'))$. We have $b(u)=\sum_{\ell\ne0}c_\ell e(\ell u)$ with $c_\ell=-1/(2\pi i\ell)$; put
+\begin{gather*}
+\phi(y)=c_1e(y)+c_{-1}e(-y)=-\frac{\sin2\pi y}{\pi},\qquad \Phi(x)=\sum_{q\in T_c}\mu_S(q)\,\phi(x/q),\\
+c_*=|c_1|^2+|c_{-1}|^2=\frac1{2\pi^2}.
+\end{gather*}
+Since the partial sums of the Fourier series of $b$ are uniformly bounded and converge almost everywhere, for $d\ge1$, $q\in T_c$ and $m=\pm1$,
+\begin{equation}\label{eq:pairing}
+\langle b(\cdot/d),e(m\,\cdot/q)\rangle=\sum_{\ell\ne0}c_\ell\,\Omega\bigl(X(\ell/d-m/q)\bigr).
+\end{equation}
+
+\subsection{The steps}
+\emph{Step 1 (decomposition).} On $[X,2X]$ write $E=-A_X-\cR_0$, where $A_X(x)=\sum_{d\in\cD,\,d\le X}\mu_S(d)b(x/d)$, and $\cR_0$ collects the terms $X<d\le x$ of the first sum in \eqref{eq:legendre}, $\tfrac12M_S$, and the last term. By \eqref{eq:rankin}, $\cR_0$ is bounded by $3K(2X)^{\sigma_1}$ on $[X,2X]$ and has total variation $\ll KX^{\sigma_1}$ there: each term $b(x/d)$ with $X<d\le2X$ varies by at most $2$ on $[X,2X]$, $M_S$ has $\le K(2X)^{\sigma_1}$ unit jumps, and the last term has derivative $\ll KX^{\sigma_1-1}$ between jumps of size $\le1$ at the points of $\cD$.
+
+\emph{Step 2 ($\cR_0$ does not correlate).} The function $G(x)=\int_X^xe(-mu/q)w(u/X)\,du$ satisfies $|G|\le C_wq$ (integrate by parts), and $G(2X)=X\Omega(-mX/q)$ is negligible. Stieltjes integration by parts gives $|\langle\cR_0,e(m\cdot/q)\rangle|\ll qKX^{\sigma_1-1}$. Summed over $q\in T_c$ and $m=\pm1$ this is $\ll\#T_c\cdot2^kYKX^{\sigma_1-1}=\#T_c\,X^{\kappa+\alpha+\eta-1+o(1)}=o(\#T_c)$, by \eqref{eq:side}.
+
+\emph{Step 3 (small moduli).} Let $d\in\cD$ with $d\le D_0$, and $q\in T_c$. If $\ell/d=m/q$, then $\ell q=md$ with $m=\pm1$, so $q\mid d$, $d=qd'$, $\ell=md'$, and the term of \eqref{eq:pairing} is $c_{md'}=c_m/d'$. Otherwise $\ell q-md$ is a non-zero integer, so $|\ell/d-m/q|\ge1/(dq)>4X^{\eta-1}$, as $dq<2^kYD_0=X^{1-\eta}/4$; the numbers $X(\ell/d-m/q)$, $\ell\in\Z$, form a progression with step $X/d\ge1$, so the remaining terms of \eqref{eq:pairing} total $O_A(X^{-\eta(A-1)})=O(X^{-10})$, as $A>1+10/\eta$. Hence
+\begin{equation}\label{eq:small}
+\langle b(\cdot/d),e(m\cdot/q)\rangle=1_{q\mid d}\,\frac{c_m}{d/q}+O(X^{-10})\qquad(d\le D_0).
+\end{equation}
+
+\emph{Step 4 (large moduli).} Let $d\in\cD$ with $D_0<d\le X$, and put $t=X/d\in[1,2^{k+2}YX^{\eta})$. In \eqref{eq:pairing} only the $\ell$ with $|\ell-md/q|\le d/(2q)$ matter: the others have $X|\ell/d-m/q|\ge X/(2q)>X^{1/2}$, by \eqref{eq:C1}. For these $\ell$, $|c_\ell|\le q/(\pi d)$, and $\sum_\ell(1+X|\ell/d-m/q|)^{-A}\le C_A$ because the step is $X/d\ge1$. So always
+\begin{equation}\label{eq:crude}
+|\langle b(\cdot/d),e(m\cdot/q)\rangle|\le C\,q/d .
+\end{equation}
+
+\begin{lemma}[Near-resonance]\label{lem:nearres}
+Let $q\in T_c$, $q\nmid d$ and $t\ge X^{2\eps}$, and put $J=2^kX^{\eps}Y/t$. Then
+\[
+|\langle b(\cdot/d),e(m\cdot/q)\rangle|\le C\,\frac qd\,1\bigl[\exists\,j:\ 0<|j|\le J,\ q\mid md+j\bigr]+C_AX^{-\eps(A-1)} .
+\]
+\end{lemma}
+
+\begin{proof}
+$X|\ell/d-m/q|=(t/q)|\ell q-md|$, and $\ell q-md$ runs through a progression with step $q$ as $\ell$ varies. The $\ell$ with $(t/q)|\ell q-md|>X^{\eps}$ contribute $\le C_A\sum_{i\ge0}(X^{\eps}+it)^{-A}\le C_AX^{-\eps(A-1)}$. The others have $|\ell q-md|\le qX^{\eps}/t<q/2$, so there is at most one, and $j=\ell q-md$ satisfies $j\ne0$ (as $q\nmid md$, since $q\nmid d$ and $m=\pm1$), $q\mid md+j$ and $|j|\le qX^\eps/t\le J$. Since $|j|\le 2^kYX^{\eps-1}d\le d/2$ by \eqref{eq:C1}, $|\ell q|\ge d/2$ and $|c_\ell|\le q/(\pi d)$.
+\end{proof}
+
+\begin{lemma}[Composite window rigidity]\label{lem:rigidity}
+Let $T_1,\dots,T_k$ be sets of primes, $T_i\subseteq[Y_i,\infty)$ with $Y_i\ge2$, and let the test moduli be the products $q_1\cdots q_k$, $q_i\in T_i$. Let $J\ge1$, let $L_1,\dots,L_k\ge0$ be integers, and let $n$ be an integer with $|n|>J$ such that $|n+j|<Y_i^{L_i+1}$ for $|j|\le J$ and every $i$. Then for every $I\subseteq\{1,\dots,k\}$ the number of tuples $(q_1,\dots,q_k)\in T_1\times\dots\times T_k$ whose product divides $n+j$ for some $0<|j|\le J$ is at most
+\[
+\Bigl(\prod_{i\in I}\#T_i\Bigr)\Bigl(\Bigl\lfloor\frac{2J}{Y_I}\Bigr\rfloor+1\Bigr)\prod_{i\notin I}L_i,\qquad Y_I=\prod_{i\in I}Y_i .
+\]
+\end{lemma}
+
+\begin{proof}
+For such a tuple with witness $j$, the sub-product $q_I=\prod_{i\in I}q_i\ge Y_I$ divides $n+j$, so $j$ lies in one residue class modulo $q_I$: at most $\lfloor2J/Y_I\rfloor+1$ choices of $j\in[-J,J]$ for each choice of $(q_i)_{i\in I}$. For each such pair, each $q_i$ with $i\notin I$ is a prime $\ge Y_i$ dividing the fixed non-zero integer $n+j$ (non-zero as $|n|>J$), and $|n+j|<Y_i^{L_i+1}$, so there are at most $L_i$ choices for $q_i$.
+\end{proof}
+
+With $I=\emptyset$ this is the divisor bound, and with $I=\{1,\dots,k\}$ the trivial bound $\#T_c(\lfloor2J/Y\rfloor+1)$. For $k=1$ the two bounds are $L_1(2J+1)$ and $\#T(\lfloor2J/Y\rfloor+1)$, which balance at the binding scale of the prime test. A sub-product $q_I$ just larger than the window $2J$ divides at most one of its integers, so an integer near $md$ is hit by about $\#T_I$ product moduli, far fewer than $\#T_c$ or $2J$, while every product modulus still resonates.
+
+\emph{Step 5 (the main term is coherent).} Let $q\in T_c$. For $d'\in\cD$ we have $qd'\in\cD$ if and only if $(d',q)=1$, and then $\mu_S(qd')=\mu_S(q)\mu_S(d')$. So by \eqref{eq:small} the moduli $d=qd'\le D_0$ contribute to $\langle A_X,\Phi\rangle$ the amount
+\begin{multline*}
+\mu_S(q)\sum_{\substack{d'\in\cD,\ (d',q)=1\\ d'\le D_0/q}}\mu_S(qd')\sum_{m=\pm1}\frac{|c_m|^2}{d'}=c_*\sum_{\substack{d'\in\cD,\ (d',q)=1\\ d'\le D_0/q}}\frac{\mu_S(d')}{d'}\\
+=c_*\Bigl(a\,\frac{q}{\varphi(q)}+O\bigl(K(D_0/q)^{\sigma_1-1}\bigr)\Bigr),
+\end{multline*}
+because $\sum_{d'\in\cD,\,(d',q)=1}\mu_S(d')/d'=\prod_{p\in S,\,p\nmid q}(1-1/p)=a\,q/\varphi(q)$, and by \eqref{eq:rankin}. Since $D_0/q\ge D_0/(2^kY)=X^{1-\eta}/(2^{2k+2}Y^2)\to\infty$ by \eqref{eq:C1}, this is $c_*a\,(q/\varphi(q))(1+o(1))$, uniformly in $q$, with the same sign for every $q$; in absolute value it is at least $c_*a(1-o(1))$. The other moduli $d\le D_0$ contribute $O(\#T_c\,KX^{\sigma_1-10})=o(\#T_c)$ by \eqref{eq:small}, since $\eta(A-1)>10$.
+
+For $D_0<d\le X$ we sum over $q\in T_c$, $m=\pm1$ and $d$, using $|\mu_S(q)|=1$ and $|c_m|\le1$:
+\begin{itemize}
+\item $q\mid d$: by \eqref{eq:crude} and \eqref{eq:rankin}, the total is
+\[
+\ll\#T_c\cdot\sum_{d'\in\cD,\,d'>D_0/(2^kY)}\frac1{d'}\ll\#T_c\cdot K\Bigl(\frac{D_0}{2^kY}\Bigr)^{\sigma_1-1}=o(\#T_c).
+\]
+\item $q\nmid d$, $d>X^{1-2\eps}$: by \eqref{eq:crude} and \eqref{eq:rankin}, the total is
+\[
+\ll\#T_c\cdot2^kYKX^{(1-2\eps)(\sigma_1-1)}=\#T_c\,X^{\kappa+\alpha+\eta-1+2\eps(1-\alpha-\eta)+o(1)}=o(\#T_c),
+\]
+by \eqref{eq:side} and $2\eps<\eta$.
+\item $q\nmid d$, $D_0<d\le X^{1-2\eps}$: split $d\in(X/(2t),X/t]$ with $t=2^i$, $X^{2\eps}/2<t<2^{k+2}YX^\eta$, and put $J_t=2^kX^{\eps}Y/t$, so that every $d$ in the block has $J\le J_t$ in Lemma~\ref{lem:nearres}; if $J_t<1$ there are no hits. By Lemma~\ref{lem:nearres}, Lemma~\ref{lem:rigidity} with $n=md$ (note $J_t<D_0<d\le X$ by \eqref{eq:C1}, and $|md+j|\le2X$), and \eqref{eq:rankin}, the block $t$ contributes
+\[
+\mathrm{Err}(t)\ll\frac{2^kYt}{X}\,K\Bigl(\frac Xt\Bigr)^{\sigma_1}\,P_k\min_{I}\,\#T_I\Bigl(\frac{2J_t}{Y_I}+1\Bigr)+\#T_c\cdot KX^{\sigma_1}X^{-\eps(A-1)} ,
+\]
+where $L_i=\lfloor\log(4X)/\log Y_i\rfloor$, so that $Y_i^{L_i+1}>4X$, and $P_k=\prod_i\max(1,L_i)$ is bounded in terms of $k$ and $\kappa$ (as $Y_i\ge X^{\kappa\lambda_i/2}$).
+\end{itemize}
+Write $t=X^{\tau}$, $2\eps-o(1)\le\tau\le\kappa+\eta+o(1)$. Dividing by $\#T_c\ge Y^{\alpha-2\eta}=X^{\kappa(\alpha-2\eta)}$ and using $\#T_I\le X^{\kappa s_I(\alpha+\eta)+o(1)}$ and $J_t=X^{\kappa-\tau+\eps+o(1)}$, the first term of $\mathrm{Err}(t)$ is at most $X^{\tilde f(\tau)+O(\eps+\eta)+o(1)}$ with
+\[
+\tilde f(\tau)=(\alpha-1)+\kappa+\tau(1-\alpha)+\min_I\bigl[\alpha\kappa s_I+\max(\kappa-\tau-\kappa s_I,0)\bigr]-\alpha\kappa .
+\]
+For $\tau\le\kappa$, replacing each $s_I$ by $|I|/k$ changes $\tilde f$ by at most $(1+\alpha)\kappa B_k\rho$, and $\tilde f$ becomes the function $f_k$ of Lemma~\ref{lem:exponent}; so $\tilde f(\tau)\le-\gamma+O(\rho)$. For $\kappa<\tau\le\kappa+\eta+o(1)$, the bound with $I=\emptyset$ gives exponent at most $(\alpha-1)+\kappa+\tau(1-\alpha)+\eps-\alpha\kappa\le(1-\alpha)(2\kappa-1)+O(\eta+\eps)<0$. By the choice of $\rho,\eta,\eps$ and $A$, every block contributes $o(\#T_c/\log X)$, and there are $O(\log X)$ blocks, so the third bullet is $o(\#T_c)$. Together with Step~2,
+\begin{equation}\label{eq:EPhi}
+|\langle E,\Phi\rangle|\ge\tfrac12c_*\,a\,\#T_c\qquad\text{for all large }X\text{ in our sequence.}
+\end{equation}
+
+\emph{Step 6 (the test is almost orthonormal).} We have
+\[
+\langle\Phi,\Phi\rangle=\sum_{q,q'\in T_c}\mu_S(q)\mu_S(q')\sum_{m,m'=\pm1}c_m\overline{c_{m'}}\,\Omega\bigl(X(m/q-m'/q')\bigr).
+\]
+The diagonal $(q,m)=(q',m')$ gives $c_*\#T_c$. For $(q,m)\ne(q',m')$ the fractions $m/q$ and $m'/q'$ are distinct, so $|m/q-m'/q'|\ge1/(qq')>4^{-k}Y^{-2}$, and $X\,4^{-k}Y^{-2}\ge X^{3\eta}$ by \eqref{eq:C1}; these terms total $\ll(\#T_c)^2X^{-3\eta A}=o(\#T_c)$. Hence $\langle\Phi,\Phi\rangle\le2c_*\#T_c$.
+
+\emph{Step 7 (conclusion).} By Cauchy--Schwarz, \eqref{eq:EPhi} and Step~6,
+\begin{equation}\label{eq:step7}
+\frac{\|w\|_\infty}{X}\int_X^{2X}E(x)^2dx\ \ge\ \langle E,E\rangle\ \ge\ \frac{\langle E,\Phi\rangle^2}{\langle\Phi,\Phi\rangle}\ \ge\ \frac{c_*a^2}{8}\,\#T_c\ \ge\ \frac{c_*a^2}{8}\,X^{\kappa(\alpha-2\eta)} ,
+\end{equation}
+for all large $X$ in our sequence.
+
+\subsection{The exponent}
+
+\begin{lemma}\label{lem:exponent}
+Let $0<\alpha<1$, $k\ge1$ and $\kappa>0$. For $0\le\tau\le\kappa$ put
+\[
+h_k(\tau)=\min_{0\le i\le k}\Bigl[\alpha\kappa\frac ik+\max\Bigl(\kappa-\tau-\kappa\frac ik,0\Bigr)\Bigr],\qquad f_k(\tau)=(\alpha-1)+\kappa+\tau(1-\alpha)+h_k(\tau)-\alpha\kappa .
+\]
+Then $\max_{0\le\tau\le\kappa}f_k(\tau)$ equals $(\alpha-1)+\kappa(2-2\alpha+\alpha^2/k)$, attained at $\tau=\kappa-\alpha\kappa/k$, if $\alpha\le\tfrac12$, and $(\alpha-1)+\kappa(1+(1-\alpha)^2/k)$, attained at $\tau=\kappa(1-\alpha)/k$, if $\alpha\ge\tfrac12$. In particular $\max_\tau f_k(\tau)<0$ if and only if $\kappa<\kappa_k(\alpha)$.
+\end{lemma}
+
+\begin{proof}
+Put $u=\kappa/k$ and $j_0=\kappa-\tau=(i_0+\beta)u$ with $i_0\in\{0,\dots,k\}$ and $0\le\beta<1$. For $i\le i_0$ the bracket is $j_0-(1-\alpha)iu$, which decreases in $i$; for $i\ge i_0+1$ it is $\alpha iu$, which increases. Hence $h_k=\alpha i_0u+u\min(\beta,\alpha)=\alpha j_0+u\,g(\beta)$ with $g(\beta)=\min(\beta(1-\alpha),\alpha(1-\beta))\le\alpha(1-\alpha)$, and
+\[
+f_k(\tau)=(\alpha-1)+\kappa+\tau(1-2\alpha)+u\,g(\beta).
+\]
+If $\alpha\le\tfrac12$, the term $\tau(1-2\alpha)$ does not decrease. For $\tau\le\kappa-\alpha u$, $f_k(\tau)\le(\alpha-1)+\kappa+(\kappa-\alpha u)(1-2\alpha)+u\alpha(1-\alpha)=(\alpha-1)+\kappa(2-2\alpha+\alpha^2/k)$, with equality at $\tau=\kappa-\alpha u$ (where $i_0=0$, $\beta=\alpha$). For $\kappa-\alpha u<\tau\le\kappa$ we have $i_0=0$, $\beta<\alpha$, and $f_k(\tau)=(\alpha-1)+\kappa(2-\alpha)-\alpha\tau$, which decreases. If $\alpha\ge\tfrac12$: for $\tau\le(1-\alpha)u$ the bracket with $i=k$ gives $f_k(\tau)\le(\alpha-1)+\kappa+\tau(1-\alpha)$, which increases, with equality at $\tau=(1-\alpha)u$ (where $i_0=k-1$, $\beta=\alpha$); for $\tau\ge(1-\alpha)u$, $f_k(\tau)\le(\alpha-1)+\kappa+\tau(1-2\alpha)+u\alpha(1-\alpha)$, which does not increase. The last assertion follows from the definition \eqref{eq:kappak}.
+\end{proof}
+
+For $k=1$, $h_1(\tau)=\min(\alpha\kappa,\kappa-\tau)$, and the maximum is attained at the binding scale $\tau=(1-\alpha)\kappa$, where the two bounds of Lemma~\ref{lem:rigidity} balance against the count of moduli.
+
+\subsection{Proofs of Theorem~\ref{thm:elementary} and Corollaries~\ref{cor:window} and~\ref{cor:dimzero}}
+
+\emph{Theorem~\ref{thm:elementary}(1).} Take $k=1$ and prime test moduli. For every $\kappa<\kappa_1(\alpha)$ and $\eta>0$ small, \eqref{eq:step7} holds along the sequence $X=Y^{1/\kappa}$, $Y$ as in \eqref{eq:Tlarge}; this is (1), since $\eta$ may be taken small.
+
+\emph{Theorem~\ref{thm:elementary}(2).} If $\theta_2(S)\ge\alpha$, then $2\theta_2(S)\ge2\alpha>\alpha\kappa_k(\alpha)$. Otherwise let $\kappa<\kappa_k(\alpha)$ and use product test moduli: \eqref{eq:step7} holds for every large $X_0$, with $X=Y^{1/\kappa}\ge X_0^{1/\kappa}$. If $\theta'>\theta_2(S)$, the left side of \eqref{eq:step7} is $\ll X^{2\theta'}$, so $\kappa(\alpha-2\eta)\le2\theta'$. Letting $\eta\to0$, $\theta'\to\theta_2(S)$ and $\kappa\to\kappa_k(\alpha)$ gives $\alpha\kappa_k(\alpha)\le2\theta_2(S)$. The order of choices is: $k$; then $\kappa$ and its margin $\gamma$; then $\rho$; then $\eta$ and $\eps$; then $A$; then $X_0$. All constants ($B_k$, $P_k$, $2^k$, $4^k$, $K$, $C_A$) are fixed before $X_0\to\infty$, and no uniformity in $k$ is needed.
+
+\emph{Theorem~\ref{thm:elementary}(3).} Let $k\to\infty$ in (2): $\kappa_k(\alpha)\to\min(\tfrac12,1-\alpha)$. \qed
+
+\begin{proof}[Proof of Corollary~\ref{cor:window}]
+By Corollary~\ref{cor:dimzero}, $\alpha=\alpha(S)<1$, and by Theorem~\ref{thm:elementary}(3), $\tfrac\alpha2\min(\tfrac12,1-\alpha)\le\theta_2(S)\le\theta$. If $\alpha\le\tfrac12$ this reads $\alpha\le4\theta$, and $2\theta<\alpha$ by hypothesis. If $\alpha>\tfrac12$ it reads $\alpha(1-\alpha)\le2\theta=u(1-u)$ with $u=u(\theta)<\tfrac12$; since $x\mapsto x(1-x)$ decreases on $[\tfrac12,1]$, $\alpha\ge1-u$.
+\end{proof}
+
+\begin{proof}[Proof of Corollary~\ref{cor:dimzero}]
+Suppose $\theta_2(S)<1$ and $\alpha(S)=1$. By Lemma~\ref{lem:cont}(2), $\zeta_S$ is meromorphic in $\re s>\theta_2(S)$ with a simple pole at $s=1$ of residue $a_S>0$, so $Z_S=\zeta_S/\zeta$ is analytic near $s=1$ with $Z_S(1)=a_S>0$. Then $\log Z_S$ is analytic near $1$, while $-\log Z_S(\sigma)=\sum_{p\in S}\sum_kp^{-k\sigma}/k$ is a Dirichlet series with non-negative coefficients and abscissa $1$, which contradicts Landau's theorem. So $\alpha(S)<1$. If moreover $\theta_2(S)=0$ and $\alpha(S)>0$, Theorem~\ref{thm:elementary}(3) gives $\tfrac{\alpha}{2}\min(\tfrac12,1-\alpha)\le0$, which is false for $0<\alpha<1$; so $\alpha(S)=0$. Finally $N_S(x)=a_Sx+O_\eps(x^{\eps})$ for every $\eps>0$ means $\theta(S)=0$, and $0\le\theta_2(S)\le\theta(S)$.
+\end{proof}
+
+\begin{remark}
+Two obstructions stop the method at level $\kappa=\tfrac12$. In Step~6, the fractions $m/q$, $q<2^kY$, are $1/(qq')$-separated, which is less than $1/X$ once $Y^2>X$; and in Step~5, products $q$ next to units $d\asymp q$ are no longer isolated. Neither obstruction is of Kloosterman type.
+\end{remark}
+
+\begin{remark}
+Gorodetsky, Mangerel and Rodgers \cite{GMR} prove an asymptotic for the variance of integers free of the primes of a sieving set in short intervals, for interval lengths up to a smaller power. Theorem~\ref{thm:elementary}(1) is a bound for the mean square of the error over $[X,2X]$, not for short intervals; we expect, but do not prove here, that the same method gives a one-sided bound of the kind in \cite{GMR} for intervals up to $X^{\kappa_1(\alpha)}$.
+\end{remark}
+
+\section{Random deletions: the lower bound}\label{sec:lower}
+
+\subsection{The model}
+Fix $0<\alpha<1$ and put $q_p=p^{\alpha-1}$. Let $(X_p)_{p\in\PP}$ be independent random variables with $\Prob(X_p=1)=q_p$ and $\Prob(X_p=0)=1-q_p$, let $S=\{p:X_p=1\}$, and let $Y_p=X_p-q_p$. Then $\Ex Y_p=0$, $|Y_p|\le1$ and $\Ex Y_p^2=q_p(1-q_p)\le q_p$.
+
+\begin{lemma}\label{lem:count}
+Almost surely $\pi_S(x)\asymp x^{\alpha}/\log x$ for all large $x$. Consequently, almost surely: $\alpha(S)=\alpha$; $\sum_{p\in S}p^{-\sigma}$ converges for $\sigma>\alpha$ and diverges for $\sigma=\alpha$; $\sum_{p\in S}1/p<\infty$; and $\sum_{p\in S,\,p\le x}\log p\asymp x^{\alpha}$.
+\end{lemma}
+
+\begin{proof}
+$m(x):=\Ex\pi_S(x)=\sum_{p\le x}p^{\alpha-1}\asymp x^{\alpha}/\log x$ by Chebyshev's estimates and partial summation, and $\Var\pi_S(x)\le m(x)$. By Chebyshev's inequality, $\Prob(|\pi_S(x)-m(x)|\ge m(x)/2)\le4/m(x)$, which is summable over $x=2^j$. By the Borel--Cantelli lemma, almost surely $\tfrac12m(2^j)\le\pi_S(2^j)\le\tfrac32m(2^j)$ for large $j$, and the first claim follows because $\pi_S$ is non-decreasing and $m(2x)\asymp m(x)$. The other claims follow by partial summation.
+\end{proof}
+
+\subsection{The decomposition of $\log Z_S$}
+For $\re w>1$ let $P(w)=\sum_pp^{-w}$. Then $P(w)=\log\zeta(w)-G(w)$, where $G(w)=\sum_p\sum_{k\ge2}p^{-kw}/k$ is analytic in $\re w>\tfrac12$. Consider the random Dirichlet series
+\[
+\cR(s)=\sum_pY_pp^{-s},\qquad \cR_2(s)=\tfrac12\sum_pY_pp^{-2s},\qquad H(s)=\sum_{p\in S}\sum_{k\ge3}\frac{p^{-ks}}{k}.
+\]
+
+\begin{lemma}\label{lem:series}
+Almost surely: $\cR$ converges and is analytic in $\re s>\alpha/2$; $\cR_2$ converges and is analytic in $\re s>\alpha/4$; $H$ is analytic in $\re s>\alpha/3$; and for $\re s>\alpha$
+\begin{equation}\label{eq:V}
+Z_S(s)^{-2}=\zeta(s+1-\alpha)^2\,\zeta(2s+1-\alpha)\,\exp\bigl(2\cR(s)+A(s)\bigr),
+\end{equation}
+where $A(s)=-2G(s+1-\alpha)-G(2s+1-\alpha)+2\cR_2(s)+2H(s)$ is analytic in $\re s>\sigma_*:=\max(\alpha-\tfrac12,\tfrac{\alpha}{3})$, and $\sigma_*<\alpha/2$.
+\end{lemma}
+
+\begin{proof}
+For real $\sigma_0>\alpha/2$ the series $\sum_pY_pp^{-\sigma_0}$ has independent terms of mean zero with $\sum_p\Ex(Y_pp^{-\sigma_0})^2\le\sum_pp^{\alpha-1-2\sigma_0}<\infty$, so it converges almost surely \cite[\S2.5]{Durrett}. A Dirichlet series that converges at $\sigma_0$ converges locally uniformly in $\re s>\sigma_0$ \cite[Theorem~1.1]{MVbook}. Taking $\sigma_0=\alpha/2+1/m$, $m\in\N$, gives the claim for $\cR$, and the same argument with $\sum_p\Ex(Y_pp^{-2\sigma_0})^2\le\sum_pp^{\alpha-1-4\sigma_0}$ gives it for $\cR_2$. $H$ converges absolutely for $3\re s>\alpha$ by Lemma~\ref{lem:count}. For $\re s>\alpha$ all series converge absolutely and
+\[
+-\log Z_S(s)=\sum_{p\in S}p^{-s}+\tfrac12\sum_{p\in S}p^{-2s}+H(s)=P(s+1-\alpha)+\cR(s)+\tfrac12P(2s+1-\alpha)+\cR_2(s)+H(s),
+\]
+since $\sum_{p\in S}p^{-s}=\sum_pq_pp^{-s}+\sum_pY_pp^{-s}$. Doubling, exponentiating and inserting $\e^{P(w)}=\zeta(w)\e^{-G(w)}$ gives \eqref{eq:V}. The domains of analyticity are $\re s>\alpha-\tfrac12$ for $G(s+1-\alpha)$, $\re s>\alpha/2-\tfrac14$ for $G(2s+1-\alpha)$, $\re s>\alpha/4$ for $\cR_2$ and $\re s>\alpha/3$ for $H$.
+\end{proof}
+
+\subsection{Mean squares blow up}
+
+\begin{lemma}\label{lem:blowup}
+Let $I\subset\R$ be a compact interval of positive length. Almost surely
+\[
+\sup_{j\ge1}\int_I\bigl|\cR(\tfrac{\alpha}{2}+\tfrac1j+it)\bigr|^2\,dt=\infty .
+\]
+\end{lemma}
+
+\begin{proof}
+For $\sigma>\alpha/2$ and $N\ge2$ let $\cR^{(N)}(s)=\sum_{p\le N}Y_pp^{-s}$. Expanding the square,
+\[
+\int_I|\cR^{(N)}(\sigma+it)|^2dt=|I|\sum_{p\le N}Y_p^2p^{-2\sigma}+\sum_{p<p'\le N}Y_pY_{p'}(pp')^{-\sigma}\,2\re c(p,p')=:\mathrm{Diag}_N(\sigma)+\mathrm{Off}_N(\sigma),
+\]
+where $c(p,p')=\int_I(p'/p)^{it}dt$, so $|c(p,p')|\le\min(|I|,2/\log(p'/p))$. The products $Y_pY_{p'}$, $p<p'$, are orthogonal, and $\Ex Y_p^2\,p^{-2\sigma}\le p^{\alpha-1-2\sigma}\le p^{-1}$, so
+\[
+\Ex\,\mathrm{Off}_N(\sigma)^2\le4\sum_{p<p'}\frac1{pp'}\min\Bigl(|I|^2,\frac4{\log^2(p'/p)}\Bigr)=:C_I .
+\]
+$C_I$ is finite. The terms with $p'\le2p$ contribute
+\[
+\ll|I|^2\sum_pp^{-1}\sum_{p<p'\le2p}p'^{-1}\ll\sum_p(p\log p)^{-1};
+\]
+and for $k\ge1$ there are $\ll2^kp/\log p$ primes $p'\in(2^kp,2^{k+1}p]$, each contributing at most $4/(2^kp\,k^2\log^22)$ to the inner sum, so the terms with $p'>2p$ contribute
+\[
+\ll\sum_pp^{-1}\sum_{k\ge1}(k^2\log p)^{-1}\ll\sum_p(p\log p)^{-1}.
+\]
+
+Let $N\to\infty$. Almost surely $\cR^{(N)}\to\cR$ uniformly on $\sigma+iI$ by Lemma~\ref{lem:series}, and $\mathrm{Diag}_N(\sigma)$ increases to $\mathrm{Diag}(\sigma)=|I|\sum_pY_p^2p^{-2\sigma}$, which is finite almost surely since its expectation is finite. So $\mathrm{Off}_N(\sigma)$ converges almost surely to some $\mathrm{Off}(\sigma)$, with
+\[
+J(\sigma):=\int_I|\cR(\sigma+it)|^2dt=\mathrm{Diag}(\sigma)+\mathrm{Off}(\sigma),\qquad \Ex\,\mathrm{Off}(\sigma)^2\le C_I ,
+\]
+the last by Fatou's lemma. Since $Y_p=1-q_p\ge1-2^{\alpha-1}$ for $p\in S$,
+\[
+\mathrm{Diag}(\sigma)\ge|I|(1-2^{\alpha-1})^2\sum_{p\in S}p^{-2\sigma}\longrightarrow\infty\qquad(\sigma\downarrow\tfrac{\alpha}{2})
+\]
+almost surely, by monotone convergence and Lemma~\ref{lem:count}. Put $\sigma_j=\alpha/2+1/j$ and let $L>0$. If $\mathrm{Diag}(\sigma_j)>2L$ and $|\mathrm{Off}(\sigma_j)|<L$, then $J(\sigma_j)>L$. Hence
+\[
+\Prob\bigl(\sup_jJ(\sigma_j)\le L\bigr)\le\inf_j\Bigl(\Prob\bigl(\mathrm{Diag}(\sigma_j)\le2L\bigr)+\frac{C_I}{L^2}\Bigr)=\frac{C_I}{L^2},
+\]
+and letting $L\to\infty$ gives $\Prob(\sup_jJ(\sigma_j)<\infty)=0$.
+\end{proof}
+
+\subsection{Proof of Theorem~\ref{thm:lower}}
+Consider the event on which the conclusions of Lemmas~\ref{lem:count} and~\ref{lem:series} hold and the conclusion of Lemma~\ref{lem:blowup} holds for every interval $I$ with rational endpoints. It has probability $1$. We show that $\theta(S)\ge\alpha/2$ on it.
+
+Suppose $\theta(S)<\alpha/2$, and fix $\theta$ with $\max(\theta(S),\sigma_*)<\theta<\alpha/2$ and $N_S(x)=a_Sx+O(x^{\theta})$. By Lemma~\ref{lem:cont}, $Z_S=\zeta_S/\zeta$ is meromorphic in $\re s>\theta$ and not identically zero. So
+\[
+V(s)=Z_S(s)^{-2}\,\zeta(s+1-\alpha)^{-2}\,\zeta(2s+1-\alpha)^{-1}
+\]
+is meromorphic in $\re s>\theta$ and not identically zero. By \eqref{eq:V}, $V=\exp(2\cR+A)$ for $\re s>\alpha$, and the right side is analytic in $\re s>\alpha/2$; so this identity holds in $\re s>\alpha/2$.
+
+The zeros and poles of $V$ in $\re s>\theta$ form a discrete set. Choose $t_0\in\R$ such that $V$ is analytic and non-zero at $\alpha/2+it_0$, and then $h>0$ with $\alpha/2-h>\theta$ such that $V$ is analytic and zero free on a neighbourhood of the closed square $Q=[\alpha/2-h,\alpha/2+h]\times[t_0-h,t_0+h]$. Let $L$ be an analytic logarithm of $V$ on a neighbourhood of $Q$. On the connected set $Q^+=Q\cap\{\re s>\alpha/2\}$ the continuous function $L-2\cR-A$ takes values in $2\pi i\Z$, so it is a constant $2\pi im$. Hence
+\[
+2\,|\cR(s)|\le\sup_Q|L|+\sup_Q|A|+2\pi|m|<\infty\qquad(s\in Q^+),
+\]
+because $A$ is analytic on a neighbourhood of $Q$ (as $\alpha/2-h>\sigma_*$). So for every interval $I\subseteq[t_0-h,t_0+h]$ with rational endpoints, $\int_I|\cR(\sigma+it)|^2dt$ is bounded for $\alpha/2<\sigma\le\alpha/2+h$. This contradicts Lemma~\ref{lem:blowup}. \qed
+
+\begin{remark}\label{rem:lowertwo}
+The regularity of $N_S$ enters only through the continuation of $\zeta_S$ to $\re s>\theta$. By Lemma~\ref{lem:cont}(2) the same argument applies with $\theta_2(S)$ in place of $\theta(S)$: almost surely $\theta_2(S)\ge\alpha/2$.
+\end{remark}
+
+\section{Random deletions: the upper bound}\label{sec:upper}
+
+We keep the model and notation of Section~\ref{sec:lower}, and assume RH from Subsection~\ref{subsec:ed} on.
+
+\subsection{An expansion in centred variables}
+For squarefree $d$ put $Y_d=\prod_{p\mid d}Y_p$ (so $Y_1=1$), and
+\[
+h_d(m)=\prod_{p\mid m,\ p\nmid d}(1-q_p),\qquad c_d=\prod_{p\nmid d}\Bigl(1-\frac{q_p}{p}\Bigr),\qquad e_d(y)=\sum_{m\le y}h_d(m)-c_dy\quad(y>0).
+\]
+For $0<y<1$ the sum is empty and $e_d(y)=-c_dy$.
+
+\begin{lemma}\label{lem:chaos}
+Almost surely, for every $x\ge1$,
+\[
+N_S(x)-a_Sx=\sum_{d\ \mathrm{squarefree}}(-1)^{\omega(d)}\,Y_d\,e_d(x/d),
+\]
+and the series converges absolutely.
+\end{lemma}
+
+\begin{proof}
+Since $1-X_p=(1-q_p)-Y_p$,
+\[
+1_{\cN_S}(n)=\prod_{p\mid n}\bigl((1-q_p)-Y_p\bigr)=\sum_{d\mid n,\ d\ \mathrm{squarefree}}(-1)^{\omega(d)}Y_d\prod_{p\mid n,\ p\nmid d}(1-q_p).
+\]
+Writing $n=dm$ and summing over $n\le x$ gives $N_S(x)=\sum_d(-1)^{\omega(d)}Y_d\sum_{m\le x/d}h_d(m)$, a finite sum. Almost surely $\sum_p|Y_p|/p\le\sum_p(X_p+q_p)/p<\infty$ by Lemma~\ref{lem:count}, so
+\[
+a_S=\prod_p\Bigl(1-\frac{q_p}{p}-\frac{Y_p}{p}\Bigr)=\sum_{d\ \mathrm{squarefree}}(-1)^{\omega(d)}\frac{Y_d}{d}\,c_d
+\]
+with absolute convergence. Subtract $x$ times this from the formula for $N_S(x)$. For $d>x$ the term is $-(-1)^{\omega(d)}Y_dc_dx/d$, and $\sum_d|Y_d|/d=\prod_p(1+|Y_p|/p)<\infty$.
+\end{proof}
+
+\subsection{From an estimate for $e_d$ to the theorem}
+
+\begin{proposition}\label{prop:moment}
+Let $\beta>\alpha/2$, and suppose that for every $\eps>0$ there is $A_\eps\ge1$ with
+\begin{equation}\label{eq:star}
+|e_d(y)|\le A_\eps\,d^{\eps}\,y^{\beta}\qquad\text{for all squarefree }d\text{ and all }y>0 .
+\end{equation}
+Then almost surely $N_S(x)=a_Sx+O(x^{\beta+\eta})$ for every $\eta>0$.
+\end{proposition}
+
+\begin{proof}
+Fix an integer $k\ge1$ and $0<\eps<\beta-\alpha/2$, and let $E(x)=N_S(x)-a_Sx$ and $E_D(x)=\sum_{d\le D}(-1)^{\omega(d)}Y_de_d(x/d)$. Then
+\[
+\Ex\,E_D(x)^{2k}=\sum_{d_1,\dots,d_{2k}\le D}\ \prod_{i=1}^{2k}(-1)^{\omega(d_i)}e_{d_i}(x/d_i)\cdot\prod_p\Ex\,Y_p^{m_p},\qquad m_p=\#\{i:p\mid d_i\}.
+\]
+The expectation vanishes if some $m_p=1$. Otherwise every prime of $U=\lcm(d_1,\dots,d_{2k})$ divides at least two of the $d_i$, so $\prod_id_i\ge U^2$, and $|\prod_p\Ex Y_p^{m_p}|\le\prod_{p\mid U}q_p$ since $|Y_p|\le1$. By \eqref{eq:star},
+\[
+\prod_i|e_{d_i}(x/d_i)|\le A_\eps^{2k}\,x^{2k\beta}\Bigl(\prod_id_i\Bigr)^{\eps-\beta}\le A_\eps^{2k}\,x^{2k\beta}\,U^{-2(\beta-\eps)} .
+\]
+At most $4^{k\omega(U)}$ tuples have a given $U$, since each prime of $U$ chooses the set of indices $i$ with $p\mid d_i$. Therefore
+\[
+\Ex\,E_D(x)^{2k}\le A_\eps^{2k}\,x^{2k\beta}\prod_p\bigl(1+4^k\,p^{\alpha-1-2(\beta-\eps)}\bigr)=:C_k\,x^{2k\beta},
+\]
+and the product converges because $\alpha-1-2(\beta-\eps)<-1$. By Lemma~\ref{lem:chaos}, $E_D(x)\to E(x)$ almost surely as $D\to\infty$, so $\Ex\,E(x)^{2k}\le C_kx^{2k\beta}$ by Fatou's lemma.
+
+Given $\eta>0$ take $k>1/(2\eta)$. By Markov's inequality, $\Prob(|E(n)|>n^{\beta+\eta})\le C_kn^{-2k\eta}$ for integers $n\ge1$, which is summable. By the Borel--Cantelli lemma, almost surely $|E(n)|\le n^{\beta+\eta}$ for all large integers $n$; and $|E(x)-E(\lfloor x\rfloor)|\le a_S\le1$. Apply this for a sequence $\eta\downarrow0$.
+\end{proof}
+
+By Lemma~\ref{lem:count}, almost surely $\alpha(S)=\alpha$. So Theorem~\ref{thm:upper} follows from Proposition~\ref{prop:moment}, applied for a sequence $\beta\downarrow\alpha/2$, and the following estimate.
+
+\begin{proposition}\label{prop:ed}
+Assume RH, and let $0<\alpha<1$ and $0<\eps<(1-\alpha)/4$. Uniformly in squarefree $d$ and $y\ge2$,
+\[
+e_d(y)\ll_{\alpha,\eps}d^{\eps}\,y^{\alpha/2+4\eps}.
+\]
+Hence \eqref{eq:star} holds for every $\beta>\alpha/2$.
+\end{proposition}
+
+The last sentence follows because, for a given $\beta>\alpha/2$, we may take $4\eps<\beta-\alpha/2$, and $|e_d(y)|=c_dy\le y^{\beta}$ for $0<y<1$ and $|e_d(y)|\le3$ for $1\le y<2$. The case $d=1$ is an estimate for the error term in $\sum_{m\le y}\prod_{p\mid m}(1-p^{\alpha-1})$.
+
+\subsection{Proof of Proposition~\ref{prop:ed}}\label{subsec:ed}
+Let $g_d(k)=\mu(k)k^{\alpha-1}$ if $\gcd(k,d)=1$ and $g_d(k)=0$ otherwise. Then $h_d=1*g_d$, $|g_d(k)|\le k^{\alpha-1}$, $c_d=\sum_kg_d(k)/k$, and for $\re s>\alpha$
+\begin{equation}
+\cG_d(s):=\sum_kg_d(k)k^{-s}=\frac1{\zeta(w)}\prod_{p\mid d}(1-p^{-w})^{-1},\qquad w=s+1-\alpha .
+\end{equation}
+We use repeatedly that, for $\re w\ge\tfrac12$,
+\begin{equation}\label{eq:dfactor}
+\prod_{p\mid d}\bigl|1-p^{-w}\bigr|^{-1}\le\prod_{p\mid d}(1-p^{-1/2})^{-1}\le\exp\bigl(C\sqrt{\log d}\bigr)\ll_\eps d^{\eps},
+\end{equation}
+because $\sum_{p\mid d}p^{-1/2}\le\sum_{i\le\omega(d)}i^{-1/2}\le2\sqrt{\omega(d)}$ and $\omega(d)\le\log d/\log2$.
+
+Assume RH. By compactness, the bounds \eqref{eq:RH1} also hold, in the form $\ll(|t|+2)^{\eps}$, for $|t|\le1$: for $1/\zeta(w)$ on $\re w\ge\tfrac12+\eps$, where $\zeta$ has no zero, and for $\zeta(s)$ on $\re s=\tfrac12+\eps$. With \eqref{eq:dfactor}, $\cG_d$ is analytic in $\re s>\alpha-\tfrac12$, and
+\begin{equation}\label{eq:Gdbound}
+|\cG_d(s)|\ll d^{\eps}(|t|+2)^{\eps}\qquad(\re s\ge\alpha-\tfrac12+\eps).
+\end{equation}
+
+Let $\phi_0\in C^\infty([0,\infty))$ with $0\le\phi_0\le1$, $\phi_0=1$ on $[0,1]$ and $\phi_0=0$ on $[2,\infty)$. Let $y\ge2$, put $K=y^{1/2}$, and split
+\[
+\sum_{m\le y}h_d(m)=\sum_kg_d(k)\Bigl\lfloor\frac yk\Bigr\rfloor=A^\flat+A^\sharp,
+\]
+where $A^\flat$ carries the weight $\phi_0(k/K)$ and $A^\sharp$ the weight $1-\phi_0(k/K)$. Let
+\[
+\cG^\flat_d(s)=\sum_kg_d(k)\phi_0(k/K)k^{-s},\qquad \cG^\sharp_d=\cG_d-\cG^\flat_d,
+\]
+so that $\cG^\flat_d$ is a finite sum and $\cG^\sharp_d(s)=\sum_kg_d(k)(1-\phi_0(k/K))k^{-s}$ for $\re s>\alpha$. Then $c_d=\cG^\flat_d(1)+\cG^\sharp_d(1)$, and
+\[
+e_d(y)=\bigl(A^\flat-y\cG^\flat_d(1)\bigr)+\bigl(A^\sharp-y\cG^\sharp_d(1)\bigr).
+\]
+
+\emph{Step 1 (small $k$).} Since $\lfloor u\rfloor=u-\tfrac12-b(u)$ and $|g_d(k)|\le k^{\alpha-1}$, $|A^\flat-y\cG^\flat_d(1)|\le\sum_{k<2K}k^{\alpha-1}\le(2K)^{\alpha}/\alpha$.
+
+\emph{Step 2 (the tail series).} The Mellin transform $\Phi_0(z)=\int_0^\infty\phi_0(u)u^{z-1}du=-z^{-1}\int_1^2\phi_0'(u)u^zdu$ is meromorphic with a single simple pole, at $z=0$, of residue $1$, and decays faster than any power of $|\im z|$ in vertical strips (integration by parts). By Mellin inversion, $\cG^\flat_d(s)=(2\pi i)^{-1}\int_{(c')}\cG_d(s+z)K^z\Phi_0(z)dz$ for $c'>\max(0,\alpha-\re s)$. For $\re s\ge\tfrac12+\eps$ move the line to $\re z=-\eta_1$, $\eta_1=1-\alpha-\eps$: on it $\re(s+z)\ge\alpha-\tfrac12+2\eps$, so by \eqref{eq:Gdbound} the shift is allowed, and the residue at $z=0$ is $\cG_d(s)$. Hence, uniformly in $\re s\ge\tfrac12+\eps$,
+\[
+\cG^\sharp_d(s)=-\frac1{2\pi i}\int_{(-\eta_1)}\cG_d(s+z)K^z\Phi_0(z)\,dz\ll d^{\eps}K^{\alpha-1+\eps}(|t|+2)^{\eps}.
+\]
+
+\emph{Step 3 (large $k$, by Perron's formula).} $A^\sharp=\sum_{m\le y}a(m)$ with $a(m)=\sum_{k\mid m}g_d(k)(1-\phi_0(k/K))$, so $|a(m)|\le\tau(m)$, and $\sum_ma(m)m^{-s}=\zeta(s)\cG^\sharp_d(s)$ for $\re s>1$. Perron's formula with $c=1+1/\log y$ and $T=y$ has error $\ll y^{\eps}\log y+(y/T)\zeta(c)^2\ll y^{2\eps}$. Move the segment to $\re s=\tfrac12+\eps$: the only pole crossed is $s=1$, with residue $y\cG^\sharp_d(1)$. By \eqref{eq:RH1} and Step~2 the horizontal segments contribute $\ll d^{\eps}T^{2\eps-1}y^{c}\ll d^{\eps}y^{2\eps}$, and the vertical one
+\[
+\ll d^{\eps}y^{1/2+\eps}K^{\alpha-1+\eps}\int_{-T}^{T}\frac{(|t|+2)^{2\eps}}{|t|+\tfrac12}\,dt\ll d^{\eps}y^{1/2+4\eps}K^{\alpha-1}.
+\]
+
+\emph{Step 4 (balance).} Altogether $e_d(y)\ll d^{\eps}\bigl(K^{\alpha}+y^{1/2+4\eps}K^{\alpha-1}+y^{2\eps}\bigr)$, and $K=y^{1/2}$ makes both main terms $y^{\alpha/2}$, so $e_d(y)\ll d^{\eps}y^{\alpha/2+4\eps}$. \qed
+
+\begin{remark}
+The split helps because $\cG_d$ has no pole: its tail decays like $K^{\alpha-1}$ on $\re s=\tfrac12+\eps$. For $\sum_k\lfloor y/k\rfloor$, the divisor problem, the tail keeps the pole of $\zeta$, and the same split gives nothing beyond Dirichlet's $y^{1/2}$. With no split ($K=1$) the argument gives $y^{1/2+\eps}$ for every $\alpha$. The truncation at $T=y$ costs only $y^{\eps}$ because $|a(m)|\le\tau(m)$.
+\end{remark}
+
+\section{Proofs of Corollaries~\ref{cor:systems} and~\ref{cor:quarter}}\label{sec:cor}
+
+\begin{proof}[Proof of Corollary~\ref{cor:systems}]
+(1) By Theorems~\ref{thm:upper} and~\ref{thm:lower}, almost surely $\theta(S)=\alpha/2$; by Remark~\ref{rem:lowertwo}, almost surely $\theta_2(S)\ge\alpha/2$, and $\theta_2(S)\le\theta(S)$.
+
+(2) Let $\tfrac12<\alpha<1$. By (1), almost surely $\beta:=\theta(S)=\alpha/2<\tfrac12<\alpha$, and by the definition of $\theta(S)$, $N_S(x)=a_Sx+O(x^{\beta+\eps})$ for every $\eps>0$ and for no $\eps<0$. Since $\theta(S)<\alpha(S)=\alpha$, Proposition~\ref{prop:realzero} gives $\zeta_S(\alpha)=0$. For the primes, $\psi_{\PP\setminus S}(x)=\psi(x)-\psi_S(x)$ with $\psi_S(x)=\sum_{p^k\le x,\ p\in S}\log p$. By Lemma~\ref{lem:count}, almost surely $\psi_S(x)\asymp x^{\alpha}$, and under RH $\psi(x)=x+O(x^{1/2}\log^2x)$. As $\alpha>\tfrac12$, $|\psi_{\PP\setminus S}(x)-x|\asymp x^{\alpha}$. So $(\PP\setminus S,\cN_S)$ is an $[\alpha,\alpha/2]$-system.
+
+(3) Let $\tfrac12<\alpha<1$, and consider the event of probability $1$ on which the conclusions of (1), of Lemma~\ref{lem:count} and of Lemma~\ref{lem:series} hold. Fix $\alpha/2<\beta<\tfrac12$ and $\alpha/2<\gamma<\beta$, and write $N_S(x)=ax+R(x)$ with $a=a_S$; since $\theta(S)=\alpha/2<\gamma$, there is $C$ with $|R(x)|\le Cx^{\gamma}$ for $x\ge1$.
+
+\emph{The zeta function.} By Lemma~\ref{lem:cont}, $Z_S=\zeta_S/\zeta$ is meromorphic in $\re s>\alpha/2$. By \eqref{eq:V}, $Z_S(s)^{-2}=\zeta(s+1-\alpha)^2\zeta(2s+1-\alpha)\exp(2\cR(s)+A(s))$ for $\re s>\alpha$; the right side is meromorphic in $\re s>\alpha/2$, so the identity holds there. Under RH the zeros of $\zeta(s+1-\alpha)$ and of $\zeta(2s+1-\alpha)$ have real parts $\alpha-\tfrac12$ and $(\alpha-\tfrac12)/2$, both less than $\alpha/2$, and the only pole of the right side in $\re s>\alpha/2$ is the double pole at $s=\alpha$. Hence $Z_S$ is analytic and zero free in $\re s>\alpha/2$ apart from a simple zero at $\alpha$, and $\zeta_S(\beta)=\zeta(\beta)Z_S(\beta)\ne0$, because $\zeta$ has no zero in $(0,1)$.
+
+\emph{The integers.} The generalized integers of $\PP_\beta$ are the products $n\,l^{1/\beta}$ with $n\in\cN_S$ and $l\in\N$, so $N_{\PP_\beta}(x)$ is the number of pairs $(n,l)$ with $nl^{1/\beta}\le x$. Let $1\le y\le x$ and $L=(x/y)^{\beta}$. A pair with $n>y$ has $l<L$, so
+\[
+N_{\PP_\beta}(x)=\sum_{n\in\cN_S,\ n\le y}\bigl\lfloor(x/n)^{\beta}\bigr\rfloor+\sum_{l<L}N_S(xl^{-1/\beta})-N_S(y)\,\#\{l\in\N:l<L\}.
+\]
+Partial summation and \eqref{eq:cont} at $s=\beta$ give
+\[
+\sum_{n\in\cN_S,\ n\le y}n^{-\beta}=N_S(y)y^{-\beta}+\beta\int_1^yN_S(t)t^{-\beta-1}dt=\frac{a\,y^{1-\beta}}{1-\beta}+\zeta_S(\beta)+O(y^{\gamma-\beta}),
+\]
+because $\zeta_S(\beta)=a\beta/(\beta-1)+\beta\int_1^\infty R(t)t^{-\beta-1}dt$ and $\int_y^\infty|R(t)|t^{-\beta-1}dt\ll y^{\gamma-\beta}$. So the first sum is $ax^{\beta}y^{1-\beta}/(1-\beta)+\zeta_S(\beta)x^{\beta}+O(x^{\beta}y^{\gamma-\beta}+y)$. In the second sum, $\sum_{l<L}l^{-1/\beta}=\zeta(1/\beta)-\beta L^{1-1/\beta}/(1-\beta)+O(L^{-1/\beta})$ and $\sum_{l<L}l^{-\gamma/\beta}\ll L^{1-\gamma/\beta}$, so it equals $a\zeta(1/\beta)x-a\beta x^{\beta}y^{1-\beta}/(1-\beta)+O(x^{\beta}y^{\gamma-\beta}+y)$. The last term is $ax^{\beta}y^{1-\beta}+O(x^{\beta}y^{\gamma-\beta}+y)$. The three terms in $x^{\beta}y^{1-\beta}$ cancel, and $y=x^{\beta/(1+\beta-\gamma)}$ gives
+\[
+N_{\PP_\beta}(x)=a\,\zeta(1/\beta)\,x+\zeta_S(\beta)\,x^{\beta}+O\bigl(x^{\beta/(1+\beta-\gamma)}\bigr),\qquad \frac{\beta}{1+\beta-\gamma}<\beta .
+\]
+This is the hyperbola computation of \cite[Lemma~5.1]{BDR}. Since $\zeta_S(\beta)\ne0$, we get $N_{\PP_\beta}(x)=a\zeta(1/\beta)x+O(x^{\beta+\eps})$ for every $\eps>0$ and for no $\eps<0$.
+
+\emph{The primes.} $\psi_{\PP_\beta}(x)=\psi(x)-\psi_S(x)+\beta^{-1}\psi(x^{\beta})$. Under RH, $\psi(x)=x+O(x^{1/2}\log^2x)$, while $\beta^{-1}\psi(x^{\beta})\ll x^{\beta}$ and $\psi_S(x)\asymp x^{\alpha}$ by Lemma~\ref{lem:count}; as $\beta<\tfrac12<\alpha$, $|\psi_{\PP_\beta}(x)-x|\asymp x^{\alpha}$. So $\PP_\beta$ is an $[\alpha,\beta]$-system. The last assertion of (3) combines this with (2), which is the case $\beta=\alpha/2$.
+\end{proof}
+
+\begin{proof}[Proof of Corollary~\ref{cor:quarter}]
+Let $\theta>\tfrac14$. If RH is false, take $S=\emptyset$: then $N_S(x)=\lfloor x\rfloor=x+O(1)$, and $\zeta_S=\zeta$ has a zero with real part greater than $\tfrac12$. If RH is true, choose $\alpha$ with $\tfrac12<\alpha<\min(1,2\theta)$. By Corollary~\ref{cor:systems} there is a set $S$ with $\theta(S)=\alpha/2<\theta$ and $\zeta_S(\alpha)=0$.
+\end{proof}
+
+\section{Remarks}\label{sec:remarks}
+
+\subsection{On Question~\ref{q:rigid}}
+The inequality $\theta(S)\ge\alpha(S)/2$ has the following heuristic meaning. By Legendre's identity \eqref{eq:legendre}, $N_S(x)-a_Sx$ is, up to smaller terms, $-\sum_{d\in\cD_S,\,d\le x}\mu_S(d)\,b(x/d)$, a sum of about $x^{\alpha(S)}$ sawtooth functions of different periods; if they do not conspire, it has size $x^{\alpha(S)/2}$. Theorems~\ref{thm:lower} and~\ref{thm:smooth} show that there is no conspiracy when $S$ is random or smooth, and Theorem~\ref{thm:elementary} shows that any conspiracy saves at most a factor of $2$ in the exponent, in mean square, when $\alpha(S)\le\tfrac12$. No set $S$ is proved to have $\theta(S)<\alpha(S)/2$. A heuristic for the deletion rule of Section~\ref{subsec:largealpha} predicts $\theta(S)=\alpha(1-\alpha)/(2-\alpha)$ for it, which is less than $\alpha/2$ for every $0<\alpha<1$; the computations there show a clear saving only for $\alpha$ close to $1$, and for $\alpha\le\tfrac12$ we have no numerical evidence either way.
+
+\subsection{Large dimension}\label{subsec:largealpha}
+For $\alpha(S)$ close to $1$ the inequality $\theta(S)\ge\tfrac14$ appears to fail for suitable deletions. Fix $0<\alpha<1$, delete each prime $p<1000$ independently with probability $p^{\alpha-1}$, and fix the target density $a$ from these choices and the expected contribution of the larger primes. Then go through the primes $p\ge1000$ in increasing order, and delete $p$ exactly when keeping it would make $N_S(p)-ap$ exceed $\tfrac12$; the decision at $p$ uses only the primes below $p$. For $\alpha=0.9$ and $x\le10^8$ this rule deletes $17\%$ of the primes, the deleted set has fitted dimension $0.898$, and the maximum of $|N_S(x)-ax|$ on the top dyadic block $[2^{25},2^{26})$ is $26$, against $758$ for a random deletion of the same dimension. Least-squares fits over the last six dyadic blocks give growth exponents $0.15$ for the maximum and $0.14$ for the root mean square of $|N_S(x)-ax|$ ($0.32$ and $0.21$ for the random deletion; such fits scatter between runs). For $\alpha=0.7$ the rule gives the exponents $0.42$ and $0.32$. For $\alpha=0.5$ it fails: with this choice of target density it stops deleting primes, and the error grows linearly. These are local exponents at $x\le10^8$, not asymptotic ones, and for dimension near $1$ a fitted dimension is hard to tell apart from the deletion of a positive proportion of the primes. Heuristically, a proof that $\theta(S)<\tfrac14$ for such a set would need information on prime gaps beyond RH: no rule can act inside a gap between consecutive primes, across which $N_S(x)-ax$ drifts by an amount proportional to the gap length divided by $\log x$, so a single gap of length about $x^{1/2}$ would contribute about $x^{1/2+o(1)}$ to the mean square over $[x,2x]$. The computations are reproduced by the script \texttt{scripts/controller\_check.py} that accompanies this paper.
+
+\subsection{Formal verification}
+The Lean~4 library \texttt{DeletedPrimes} that accompanies this paper (with Mathlib; folder \texttt{lean/}) defines $N_S$, $\mu_S$, $a_S=\sum_d\mu_S(d)/d$, $\alpha(S)$, $\theta(S)$ and $\theta_2(S)$ for an arbitrary set $S$ of natural numbers, and proves the following with no axioms beyond Lean's standard three; it contains no \texttt{sorry}.
+\begin{itemize}
+\item \emph{Proved outright.} $\theta_2(S)\le\theta(S)\le1$; Legendre's identity \eqref{eq:legendre}, the identities $1_{\cN_S}=1*\mu_S$ and $a_S=\prod_{p\in S}(1-1/p)$, the multiplicativity used in Step~5, the summability of $\sum_{d\in\cD_S}d^{-\sigma}$ for $\sigma>\alpha(S)$, Rankin's bounds \eqref{eq:rankin} for $\#\{d\in\cD:d\le Z\}$ and for the tail, and $\theta(S)\le\alpha(S)$ (Section~\ref{sec:legendre}); Lemma~\ref{lem:rigidity}, the injectivity of $(q_1,\dots,q_k)\mapsto q_1\cdots q_k$ for disjoint blocks, and the arithmetic of Steps~3, 4 and~6 and of Lemma~\ref{lem:nearres}; Lemma~\ref{lem:exponent}, the bound $\kappa_k(\alpha)<\min(\tfrac12,1-\alpha)$, the boundary term on $(\kappa,\kappa+\eta]$, the cost of unequal blocks, $\kappa_k\uparrow\min(\tfrac12,1-\alpha)$, and the arithmetic of Corollary~\ref{cor:window}; the dense blocks \eqref{eq:Tlarge} and Proposition~\ref{prop:goodscales} from the Mertens law; the lower bound $\#(S\cap(X,2X])\gg X^{\alpha}/\log X$ from $\pi_S=c_0\li_\alpha+O(x^{\delta})$, $\delta<\alpha$; the convergence condition of Proposition~\ref{prop:moment} and the balance of Proposition~\ref{prop:ed}; and the arithmetic of Corollary~\ref{cor:systems}(3): the hyperbola exponent $\beta/(1+\beta-\gamma)<\beta$ and its balance point, the cancellation of the cross terms, the identities for the tail terms, the real parts of the shifted zeros under RH, the containment of the region \eqref{eq:BDR} in the band $\alpha/2\le\beta<\tfrac12$, and the exactness of a two-term asymptotic $ax+cx^{\beta}+O(x^{\beta'})$ with $c\ne0$.
+\item \emph{Proved from named analytic hypotheses.} Theorem~\ref{thm:elementary}(1)--(3) and Corollaries~\ref{cor:window} and~\ref{cor:dimzero}, with Steps~1--7 of Section~\ref{sec:elementary} (in the form ``dense blocks at a configuration with negative error exponents give mean square $\gg\#T_c$''), Theorem~\ref{thm:quant} (the Mertens law) and the first part of Corollary~\ref{cor:dimzero} (Landau's theorem) as hypotheses; the last step of Theorem~\ref{thm:smooth}, from the count bound \eqref{eq:smoothcount}; Theorem~\ref{thm:upper} from the moment bound of Proposition~\ref{prop:moment} (``for every $\beta>\alpha/2$, almost surely $O(x^{\beta})$''); the statement $\theta(S)=\alpha/2$ of Corollary~\ref{cor:systems}(1) from Theorems~\ref{thm:upper} and~\ref{thm:lower}; and Corollary~\ref{cor:quarter}, by the case split on Mathlib's statement of RH.
+\end{itemize}
+The analytic arguments themselves are not formalised: the Fourier analysis of Steps~1--7, Landau's and Karamata's theorems, the contour shifts and the bounds for $\zeta$, the probabilistic arguments of Sections~\ref{sec:lower} and~\ref{sec:upper}, and Plancherel's identity in Section~\ref{sec:smooth}. Parts (2) and (3) of Corollary~\ref{cor:systems}, the $[\alpha,\beta]$-systems, are not formalised beyond this arithmetic: the library has no Beurling systems, and the hyperbola computation and the nonvanishing of $\zeta_S(\beta)$ in Section~\ref{sec:cor} are not checked. The correspondence between the statements of this paper and the Lean names is listed in \texttt{lean/README.md}.
+
+\subsection*{Acknowledgement}
+The proofs, the Lean code and the text of this paper were written by Claude (Anthropic), an AI system, directed by the anonymous author, who chose the question and the scope and decided what to keep. No human expert has read the proofs.
+
+\begin{thebibliography}{99}
+
+\bibitem{BHP} R. C. Baker, G. Harman, J. Pintz, \emph{The difference between consecutive primes, II}, Proc. London Math. Soc. (3) \textbf{83} (2001), 532--562.
+
+\bibitem{Beurling} A. Beurling, \emph{Analyse de la loi asymptotique de la distribution des nombres premiers g\'en\'eralis\'es, I}, Acta Math. \textbf{68} (1937), 255--291.
+
+\bibitem{BGT} N. H. Bingham, C. M. Goldie, J. L. Teugels, \emph{Regular Variation}, Encyclopedia of Mathematics and its Applications 27, Cambridge University Press, 1987.
+
+\bibitem{BDR} F. Broucke, G. Debruyne, Sz. Gy. R\'ev\'esz, \emph{Some examples of well-behaved Beurling number systems}, Trans. Amer. Math. Soc. \textbf{378} (2025), 477--501; arXiv:2309.01567.
+
+\bibitem{BDV} F. Broucke, G. Debruyne, J. Vindas, \emph{Beurling integers with RH and large oscillation}, Adv. Math. \textbf{370} (2020), Article 107240; arXiv:2004.11501.
+
+\bibitem{BH} F. Broucke, T. Hilberdink, \emph{An $\Omega$-result for Beurling generalized integers}, Acta Arith. \textbf{212} (2024), 359--371.
+
+\bibitem{BV} F. Broucke, J. Vindas, \emph{A new generalized prime random approximation procedure and some of its applications}, Math. Z. \textbf{307} (2024), Article 62; arXiv:2102.08478.
+
+\bibitem{DMV} H. G. Diamond, H. L. Montgomery, U. M. A. Vorhauer, \emph{Beurling primes with large oscillation}, Math. Ann. \textbf{334} (2006), 1--36.
+
+\bibitem{DZ} H. G. Diamond, W.-B. Zhang, \emph{Beurling Generalized Numbers}, Mathematical Surveys and Monographs 213, American Mathematical Society, 2016.
+
+\bibitem{Durrett} R. Durrett, \emph{Probability: Theory and Examples}, 5th ed., Cambridge University Press, 2019.
+
+\bibitem{GMR} O. Gorodetsky, A. P. Mangerel, B. Rodgers, \emph{Squarefrees are Gaussian in short intervals}, J. reine angew. Math. \textbf{795} (2023), 1--44; arXiv:2112.12234.
+
+\bibitem{H05} T. W. Hilberdink, \emph{Well-behaved Beurling primes and integers}, J. Number Theory \textbf{112} (2005), 332--344.
+
+\bibitem{H12} T. W. Hilberdink, \emph{Generalised prime systems with periodic integer counting function}, Acta Arith. \textbf{152} (2012), 217--241.
+
+\bibitem{KMPT} O. Klurman, A. P. Mangerel, C. Pohoata, J. Ter\"av\"ainen, \emph{Multiplicative functions that are close to their mean}, Trans. Amer. Math. Soc. \textbf{374} (2021), 7967--7990; arXiv:1911.06265.
+
+\bibitem{Korevaar} J. Korevaar, \emph{Tauberian Theory: A Century of Developments}, Grundlehren der mathematischen Wissenschaften 329, Springer, 2004.
+
+\bibitem{K13} D. Koukoulopoulos, \emph{On multiplicative functions which are small on average}, Geom. Funct. Anal. \textbf{23} (2013), 1569--1630; arXiv:1111.2659.
+
+\bibitem{KS20} D. Koukoulopoulos, K. Soundararajan, \emph{The structure of multiplicative functions with small partial sums}, Discrete Anal. (2020), Paper No. 6, 19 pp.; arXiv:1909.13105.
+
+\bibitem{Lagarias} J. C. Lagarias, \emph{Beurling generalized integers with the Delone property}, Forum Math. \textbf{11} (1999), 295--312.
+
+\bibitem{MVbook} H. L. Montgomery, R. C. Vaughan, \emph{Multiplicative Number Theory I. Classical Theory}, Cambridge Studies in Advanced Mathematics 97, Cambridge University Press, 2007.
+
+\bibitem{Revesz} Sz. Gy. R\'ev\'esz, \emph{Density theorems for the Beurling zeta function}, Mathematika \textbf{68} (2022), 1045--1072; arXiv:2012.09045.
+
+\bibitem{TitFunctions} E. C. Titchmarsh, \emph{The Theory of Functions}, 2nd ed., Oxford University Press, 1939.
+
+\bibitem{Tit} E. C. Titchmarsh, \emph{The Theory of the Riemann Zeta-Function}, 2nd ed., revised by D. R. Heath-Brown, Oxford University Press, 1986.
+
+\end{thebibliography}
+
+\end{document}

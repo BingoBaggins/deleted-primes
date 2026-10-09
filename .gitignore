@@ -1,0 +1,11 @@
+# Lean build artefacts and the Mathlib cache (several GB); rebuild with `lake exe cache get` and `lake build`
+lean/.lake/
+# OS and editor files
+.DS_Store
+# LaTeX intermediates
+paper/*.aux
+paper/*.log
+paper/*.out
+paper/*.fls
+paper/*.fdb_latexmk
+paper/*.synctex.gz
