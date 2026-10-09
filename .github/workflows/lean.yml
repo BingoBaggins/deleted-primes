@@ -1,0 +1,61 @@
+# Builds the Lean library and runs the checks described in lean/README.md.
+name: Lean
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  check:
+    name: Build and check
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+        working-directory: lean
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: No sorry, admit, native_decide or axiom in the sources
+        run: |
+          if grep -rnwE 'sorry|admit|native_decide|axiom' DeletedPrimes DeletedPrimes.lean; then
+            echo "::error::Forbidden keyword in the Lean sources (see the lines above)."
+            exit 1
+          fi
+
+      # Installs the toolchain in lean-toolchain, downloads the compiled Mathlib and runs `lake build`.
+      # --wfail fails the build on any warning, including "declaration uses 'sorry'".
+      - uses: leanprover/lean-action@v1
+        with:
+          lake-package-directory: lean
+          build-args: --wfail
+          test: false
+          lint: false
+
+      - name: Axiom check (every cited name uses only propext, Classical.choice, Quot.sound)
+        run: |
+          lake env lean AxiomCheck.lean | tee axioms.txt
+          python3 - <<'EOF'
+          import re, sys
+
+          allowed = {"propext", "Classical.choice", "Quot.sound"}
+          expected = sum(1 for line in open("AxiomCheck.lean") if line.startswith("#print axioms"))
+          out = open("axioms.txt").read()
+          report = r"'([^']+)'\s+(?:depends on axioms:\s*\[([^\]]*)\]|does not depend on any axioms)"
+
+          found = re.findall(report, out)
+          bad = [(name, axioms) for name, axioms in found
+                 if not {a.strip() for a in axioms.split(",") if a.strip()} <= allowed]
+          leftover = re.sub(report, "", out).strip()
+
+          for name, axioms in bad:
+              print(f"::error::{name} depends on [{axioms}]")
+          if leftover:
+              print(f"::error::Unexpected output from AxiomCheck.lean:\n{leftover}")
+          if len(found) != expected:
+              print(f"::error::Expected {expected} axiom reports, got {len(found)}")
+          if bad or leftover or len(found) != expected:
+              sys.exit(1)
+          print(f"All {expected} names depend only on {sorted(allowed)}.")
+          EOF
